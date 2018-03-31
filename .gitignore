@@ -3,6 +3,7 @@ obj/
 bin/
 build/
 tmp/
+settings/
 *.bin
 .kdev4
 *.log
@@ -25,3 +26,18 @@ tmp/
 .directory
 launch.json
 .cmaketools.json
+*.tmp
+*.o
+*.cout
+*.pbi
+*.pbd
+*.browse
+*.out
+*.sim
+*.ewt
+*.crun
+*.dbgdt
+*.dni
+*.bat
+*.cproject
+*.project
