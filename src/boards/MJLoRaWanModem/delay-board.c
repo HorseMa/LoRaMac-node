@@ -22,10 +22,12 @@
  *
  * \author    Johannes Bruder ( STACKFORCE )
  */
-#include "stm32l1xx.h"
+#include "board.h"
 #include "delay-board.h"
 
-void DelayMsMcu( uint32_t ms )
+void DelayMs( uint32_t ms )
 {
-    HAL_Delay( ms );
+    uint32_t i,j;
+    for(i = 0;i < 1000;i++)
+      for(j = 0;j < 5;j++);
 }

@@ -20,21 +20,10 @@
  *
  * \author    Gregory Cristian ( Semtech )
  */
-#include "stm32l1xx.h"
+#include "lpc824board.h"
 #include "utilities.h"
 #include "delay.h"
 #include "gpio.h"
-#include "gpio-ioe.h"
-#include "adc.h"
-#include "spi.h"
-#include "i2c.h"
-#include "uart.h"
-#include "timer.h"
-#include "gps.h"
-#include "mpl3115.h"
-#include "mag3110.h"
-#include "mma8451.h"
-#include "sx9500.h"
 #include "board-config.h"
 #include "rtc-board.h"
 #include "sx1276-board.h"
@@ -42,76 +31,13 @@
 #include "uart-usb-board.h"
 #endif
 #include "board.h"
-
+#include "timer.h"
 /*!
  * Unique Devices IDs register set ( STM32L1xxx )
  */
 #define         ID1                                 ( 0x1FF80050 )
 #define         ID2                                 ( 0x1FF80054 )
 #define         ID3                                 ( 0x1FF80064 )
-
-/*!
- * LED GPIO pins objects
- */
-Gpio_t Led1;
-Gpio_t Led2;
-Gpio_t Led3;
-Gpio_t Led4;
-
-Gpio_t UsbDetect;
-
-/*
- * MCU objects
- */
-Adc_t Adc;
-I2c_t I2c;
-Uart_t Uart1;
-#if defined( USE_USB_CDC )
-Uart_t UartUsb;
-#endif
-
-/*!
- * Initializes the unused GPIO to a know status
- */
-static void BoardUnusedIoInit( void );
-
-/*!
- * System Clock Configuration
- */
-static void SystemClockConfig( void );
-
-/*!
- * Used to measure and calibrate the system wake-up time from STOP mode
- */
-static void CalibrateSystemWakeupTime( void );
-
-/*!
- * System Clock Re-Configuration when waking up from STOP mode
- */
-static void SystemClockReConfig( void );
-
-/*!
- * Timer used at first boot to calibrate the SystemWakeupTime
- */
-static TimerEvent_t CalibrateSystemWakeupTimeTimer;
-
-/*!
- * Flag to indicate if the MCU is Initialized
- */
-static bool McuInitialized = false;
-
-/*!
- * Flag to indicate if the SystemWakeupTime is Calibrated
- */
-static bool SystemWakeupTimeCalibrated = false;
-
-/*!
- * Callback indicating the end of the system wake-up time calibration
- */
-static void OnCalibrateSystemWakeupTimeTimerEvent( void )
-{
-    SystemWakeupTimeCalibrated = true;
-}
 
 /*!
  * Nested interrupt counter.
@@ -137,106 +63,15 @@ void BoardEnableIrq( void )
 
 void BoardInitPeriph( void )
 {
-    Gpio_t ioPin;
 
-    // Init the GPIO pins
-    GpioInit( &ioPin, DC_DC_EN, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &ioPin, IRQ_MPL3115, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &ioPin, IRQ_MAG3110, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &ioPin, GPS_POWER_ON, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &ioPin, RADIO_PUSH_BUTTON, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &ioPin, BOARD_POWER_DOWN, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &ioPin, SPARE_IO_EXT_5, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &ioPin, SPARE_IO_EXT_6, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &ioPin, SPARE_IO_EXT_7, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &ioPin, N_IRQ_SX9500, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &ioPin, IRQ_1_MMA8451, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &ioPin, IRQ_2_MMA8451, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &ioPin, TX_EN_SX9500, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &Led3, LED_3, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &Led4, LED_4, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-
-    // Init temperature, pressure and altitude sensor
-    MPL3115Init( );
-
-    // Init accelerometer
-    MMA8451Init( );
-
-    // Init magnetometer
-    MAG3110Init( );
-
-    // Init SAR
-    SX9500Init( );
-
-    // Init GPS
-    GpsInit( );
-
-    // Switch LED 1, 2, 3, 4 OFF
-    GpioWrite( &Led1, 1 );
-    GpioWrite( &Led2, 1 );
-    GpioWrite( &Led3, 1 );
-    GpioWrite( &Led4, 1 );
 }
 
 void BoardInitMcu( void )
 {
-    if( McuInitialized == false )
-    {
-#if defined( USE_BOOTLOADER )
-        // Set the Vector Table base location at 0x3000
-        SCB->VTOR = FLASH_BASE | 0x3000;
-#endif
-        HAL_Init( );
-
-        SystemClockConfig( );
-
-        GpioInit( &UsbDetect, USB_ON, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-
-        RtcInit( );
-
-#if defined( USE_USB_CDC )
-        {
-            Gpio_t ioPin;
-
-            GpioInit( &ioPin, USB_DM, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-
-            if( GpioRead( &ioPin ) == 0 )
-            {
-                UartInit( &UartUsb, UART_USB_CDC, NC, NC );
-                UartConfig( &UartUsb, RX_TX, 115200, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
-
-                DelayMs( 1000 ); // 1000 ms for Usb initialization
-            }
-            else
-            {
-                GpioInit( &ioPin, USB_DM, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-            }
-        }
-#endif
-        BoardUnusedIoInit( );
-
-        I2cInit( &I2c, I2C_1, I2C_SCL, I2C_SDA );
-    }
-    else
-    {
-        SystemClockReConfig( );
-    }
-
-    AdcInit( &Adc, BAT_LEVEL_PIN );
-
-    SpiInit( &SX1276.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
-    SX1276IoInit( );
-
-    if( McuInitialized == false )
-    {
-        McuInitialized = true;
-        if( GetBoardPowerSource( ) == BATTERY_POWER )
-        {
-            CalibrateSystemWakeupTime( );
-        }
-    }
+    SystemCoreClockUpdate();
+    Board_Init();
+    UartMcuInit(NULL,0,PA_1,PA_1);
+    SpiInit(NULL,SPI_1,PA_1,PA_1,PA_0,PA_0);
 }
 
 void BoardResetMcu( void )
@@ -250,20 +85,6 @@ void BoardResetMcu( void )
 
 void BoardDeInitMcu( void )
 {
-    Gpio_t ioPin;
-
-    AdcDeInit( &Adc );
-
-    SpiDeInit( &SX1276.Spi );
-    SX1276IoDeInit( );
-
-    GpioInit( &ioPin, OSC_HSE_IN, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &ioPin, OSC_HSE_OUT, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-
-    GpioInit( &ioPin, OSC_LSE_IN, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &ioPin, OSC_LSE_OUT, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-
-    GpioInit( &UsbDetect, USB_ON, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 }
 
 uint32_t BoardGetRandomSeed( void )
@@ -309,20 +130,8 @@ static uint16_t BatteryVoltage = BATTERY_MAX_LEVEL;
 
 uint16_t BoardBatteryMeasureVolage( void )
 {
-    uint16_t vdd = 0;
-    uint16_t vref = VREFINT_CAL;
-    uint16_t vdiv = 0;
     uint16_t batteryVoltage = 0;
 
-    vdiv = AdcReadChannel( &Adc, BAT_LEVEL_CHANNEL );
-    //vref = AdcReadChannel( &Adc, ADC_CHANNEL_VREFINT );
-
-    vdd = ( float )FACTORY_POWER_SUPPLY * ( float )VREFINT_CAL / ( float )vref;
-    batteryVoltage = vdd * ( ( float )vdiv / ( float )ADC_MAX_VALUE );
-
-    //                                vDiv
-    // Divider bridge  VBAT <-> 470k -<--|-->- 470k <-> GND => vBat = 2 * vDiv
-    batteryVoltage = 2 * batteryVoltage;
     return batteryVoltage;
 }
 
@@ -365,140 +174,15 @@ uint8_t BoardGetBatteryLevel( void )
     return batteryLevel;
 }
 
-static void BoardUnusedIoInit( void )
-{
-    Gpio_t ioPin;
-
-    if( GetBoardPowerSource( ) == BATTERY_POWER )
-    {
-        GpioInit( &ioPin, USB_DM, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-        GpioInit( &ioPin, USB_DP, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    }
-
-    GpioInit( &ioPin, TEST_POINT1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &ioPin, TEST_POINT2, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &ioPin, TEST_POINT3, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &ioPin, TEST_POINT4, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-
-    GpioInit( &ioPin, PIN_NC, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &ioPin, BOOT_1, PIN_ANALOGIC, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
-
-    GpioInit( &ioPin, RF_RXTX, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &ioPin, WKUP1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-
-#if defined( USE_DEBUGGER )
-    HAL_DBGMCU_EnableDBGStopMode( );
-    HAL_DBGMCU_EnableDBGSleepMode( );
-    HAL_DBGMCU_EnableDBGStandbyMode( );
-#else
-    HAL_DBGMCU_DisableDBGSleepMode( );
-    HAL_DBGMCU_DisableDBGStopMode( );
-    HAL_DBGMCU_DisableDBGStandbyMode( );
-
-    GpioInit( &ioPin, SWDIO, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &ioPin, SWCLK, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-#endif
-}
-
-void SystemClockConfig( void )
-{
-    RCC_OscInitTypeDef RCC_OscInitStruct;
-    RCC_ClkInitTypeDef RCC_ClkInitStruct;
-    RCC_PeriphCLKInitTypeDef PeriphClkInit;
-
-    __HAL_RCC_PWR_CLK_ENABLE( );
-
-    __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE1 );
-
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_LSE;
-    RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-    RCC_OscInitStruct.LSEState = RCC_LSE_ON;
-    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL8;
-    RCC_OscInitStruct.PLL.PLLDIV = RCC_PLL_DIV3;
-    if( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK )
-    {
-        assert_param( FAIL );
-    }
-
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK |
-                                  RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-    if( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_1 ) != HAL_OK )
-    {
-        assert_param( FAIL );
-    }
-
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-    PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
-    if( HAL_RCCEx_PeriphCLKConfig( &PeriphClkInit ) != HAL_OK )
-    {
-        assert_param( FAIL );
-    }
-
-    HAL_SYSTICK_Config( HAL_RCC_GetHCLKFreq( ) / 1000 );
-
-    HAL_SYSTICK_CLKSourceConfig( SYSTICK_CLKSOURCE_HCLK );
-
-    // HAL_NVIC_GetPriorityGrouping
-    HAL_NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_4 );
-
-    // SysTick_IRQn interrupt configuration
-    HAL_NVIC_SetPriority( SysTick_IRQn, 0, 0 );
-}
-
-void CalibrateSystemWakeupTime( void )
-{
-    if( SystemWakeupTimeCalibrated == false )
-    {
-        TimerInit( &CalibrateSystemWakeupTimeTimer, OnCalibrateSystemWakeupTimeTimerEvent );
-        TimerSetValue( &CalibrateSystemWakeupTimeTimer, 1000 );
-        TimerStart( &CalibrateSystemWakeupTimeTimer );
-        while( SystemWakeupTimeCalibrated == false )
-        {
-            TimerLowPowerHandler( );
-        }
-    }
-}
-
 void SystemClockReConfig( void )
 {
-    __HAL_RCC_PWR_CLK_ENABLE( );
-    __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE1 );
 
-    /* Enable HSE */
-    __HAL_RCC_HSE_CONFIG( RCC_HSE_ON );
-
-    /* Wait till HSE is ready */
-    while( __HAL_RCC_GET_FLAG( RCC_FLAG_HSERDY ) == RESET )
-    {
-    }
-
-    /* Enable PLL */
-    __HAL_RCC_PLL_ENABLE( );
-
-    /* Wait till PLL is ready */
-    while( __HAL_RCC_GET_FLAG( RCC_FLAG_PLLRDY ) == RESET )
-    {
-    }
-
-    /* Select PLL as system clock source */
-    __HAL_RCC_SYSCLK_CONFIG ( RCC_SYSCLKSOURCE_PLLCLK );
-
-    /* Wait till PLL is used as system clock source */
-    while( __HAL_RCC_GET_SYSCLK_SOURCE( ) != RCC_SYSCLKSOURCE_STATUS_PLLCLK )
-    {
-    }
 }
 
 void SysTick_Handler( void )
 {
-    HAL_IncTick( );
-    HAL_SYSTICK_IRQHandler( );
+    //HAL_IncTick( );
+    //HAL_SYSTICK_IRQHandler( );
 }
 
 uint8_t GetBoardPowerSource( void )
@@ -517,17 +201,6 @@ uint8_t GetBoardPowerSource( void )
 #endif
 }
 
-#ifdef __GNUC__
-int __io_putchar( int c )
-#else /* __GNUC__ */
-int fputc( int c, FILE *stream )
-#endif
-{
-#if defined( USE_USB_CDC )
-    while( UartPutChar( &UartUsb, c ) != 0 );
-#endif
-    return c;
-}
 
 #ifdef USE_FULL_ASSERT
 /*
@@ -549,5 +222,10 @@ void assert_failed( uint8_t* file, uint32_t line )
     while( 1 )
     {
     }
+}
+
+void GpioWrite( Gpio_t *obj, uint32_t value )
+{
+  value?Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT,0,14):Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT,0,14);
 }
 #endif

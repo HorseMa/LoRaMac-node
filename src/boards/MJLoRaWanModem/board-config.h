@@ -32,7 +32,7 @@
  */
 #ifndef __BOARD_CONFIG_H__
 #define __BOARD_CONFIG_H__
-
+#include "gpio.h"
 /*!
  * Defines the time required for the TCXO to wakeup [ms].
  */
@@ -41,7 +41,7 @@
 /*!
  * Define indicating if an external IO expander is to be used
  */
-#define BOARD_IOE_EXT
+//#define BOARD_IOE_EXT
 
 /*!
  * Board IO Extender pins definitions

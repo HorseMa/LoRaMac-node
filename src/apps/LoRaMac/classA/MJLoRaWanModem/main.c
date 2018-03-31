@@ -25,9 +25,6 @@
 
 #include "utilities.h"
 #include "board.h"
-#include "gpio.h"
-#include "gps.h"
-#include "mpl3115.h"
 #include "LoRaMac.h"
 #include "Commissioning.h"
 
@@ -144,17 +141,17 @@ static bool AppLedStateOn = false;
 /*!
  * Timer to handle the state of LED1
  */
-static TimerEvent_t Led1Timer;
+//static TimerEvent_t Led1Timer;
 
 /*!
  * Timer to handle the state of LED2
  */
-static TimerEvent_t Led2Timer;
+//static TimerEvent_t Led2Timer;
 
 /*!
  * Timer to handle the state of LED4
  */
-static TimerEvent_t Led4Timer;
+//static TimerEvent_t Led4Timer;
 
 /*!
  * Indicates if a new packet can be sent
@@ -191,14 +188,6 @@ struct ComplianceTest_s
 }ComplianceTest;
 
 /*!
- * LED GPIO pins objects
- */
-extern Gpio_t Led1;
-extern Gpio_t Led2;
-extern Gpio_t Led3;
-extern Gpio_t Led4;
-
-/*!
  * \brief   Prepares the payload of the frame
  */
 static void PrepareTxFrame( uint8_t port )
@@ -208,82 +197,7 @@ static void PrepareTxFrame( uint8_t port )
     switch( port )
     {
     case 2:
-        switch( region )
-        {
-            case LORAMAC_REGION_CN470:
-            case LORAMAC_REGION_CN779:
-            case LORAMAC_REGION_EU433:
-            case LORAMAC_REGION_EU868:
-            case LORAMAC_REGION_IN865:
-            case LORAMAC_REGION_KR920:
-            {
-                uint16_t pressure = 0;
-                int16_t altitudeBar = 0;
-                int16_t temperature = 0;
-                int32_t latitude, longitude = 0;
-                int16_t altitudeGps = 0xFFFF;
-                uint8_t batteryLevel = 0;
 
-                pressure = ( uint16_t )( MPL3115ReadPressure( ) / 10 );             // in hPa / 10
-                temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
-                altitudeBar = ( int16_t )( MPL3115ReadAltitude( ) * 10 );           // in m * 10
-                batteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
-                GpsGetLatestGpsPositionBinary( &latitude, &longitude );
-                altitudeGps = GpsGetLatestGpsAltitude( );                           // in m
-
-                AppDataSizeBackup = AppDataSize = 16;
-                AppData[0] = AppLedStateOn;
-                AppData[1] = ( pressure >> 8 ) & 0xFF;
-                AppData[2] = pressure & 0xFF;
-                AppData[3] = ( temperature >> 8 ) & 0xFF;
-                AppData[4] = temperature & 0xFF;
-                AppData[5] = ( altitudeBar >> 8 ) & 0xFF;
-                AppData[6] = altitudeBar & 0xFF;
-                AppData[7] = batteryLevel;
-                AppData[8] = ( latitude >> 16 ) & 0xFF;
-                AppData[9] = ( latitude >> 8 ) & 0xFF;
-                AppData[10] = latitude & 0xFF;
-                AppData[11] = ( longitude >> 16 ) & 0xFF;
-                AppData[12] = ( longitude >> 8 ) & 0xFF;
-                AppData[13] = longitude & 0xFF;
-                AppData[14] = ( altitudeGps >> 8 ) & 0xFF;
-                AppData[15] = altitudeGps & 0xFF;
-                break;
-            }
-            case LORAMAC_REGION_AS923:
-            case LORAMAC_REGION_AU915:
-            case LORAMAC_REGION_US915:
-            case LORAMAC_REGION_US915_HYBRID:
-            {
-                int16_t temperature = 0;
-                int32_t latitude, longitude = 0;
-                uint16_t altitudeGps = 0xFFFF;
-                uint8_t batteryLevel = 0;
-
-                temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
-
-                batteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
-                GpsGetLatestGpsPositionBinary( &latitude, &longitude );
-                altitudeGps = GpsGetLatestGpsAltitude( );                           // in m
-
-                AppDataSizeBackup = AppDataSize = 11;
-                AppData[0] = AppLedStateOn;
-                AppData[1] = temperature;                                           // Signed degrees celsius in half degree units. So,  +/-63 C
-                AppData[2] = batteryLevel;                                          // Per LoRaWAN spec; 0=Charging; 1...254 = level, 255 = N/A
-                AppData[3] = ( latitude >> 16 ) & 0xFF;
-                AppData[4] = ( latitude >> 8 ) & 0xFF;
-                AppData[5] = latitude & 0xFF;
-                AppData[6] = ( longitude >> 16 ) & 0xFF;
-                AppData[7] = ( longitude >> 8 ) & 0xFF;
-                AppData[8] = longitude & 0xFF;
-                AppData[9] = ( altitudeGps >> 8 ) & 0xFF;
-                AppData[10] = altitudeGps & 0xFF;
-                break;
-            }
-            default:
-                // Unsupported region.
-                break;
-        }
         break;
     case 224:
         if( ComplianceTest.LinkCheck == true )
@@ -404,36 +318,6 @@ static void OnTxNextPacketTimerEvent( void )
 }
 
 /*!
- * \brief Function executed on Led 1 Timeout event
- */
-static void OnLed1TimerEvent( void )
-{
-    TimerStop( &Led1Timer );
-    // Switch LED 1 OFF
-    GpioWrite( &Led1, 1 );
-}
-
-/*!
- * \brief Function executed on Led 2 Timeout event
- */
-static void OnLed2TimerEvent( void )
-{
-    TimerStop( &Led2Timer );
-    // Switch LED 2 OFF
-    GpioWrite( &Led2, 1 );
-}
-
-/*!
- * \brief Function executed on Led 4 Timeout event
- */
-static void OnLed4TimerEvent( void )
-{
-    TimerStop( &Led4Timer );
-    // Switch LED 4 OFF
-    GpioWrite( &Led4, 1 );
-}
-
-/*!
  * \brief   MCPS-Confirm event function
  *
  * \param   [IN] mcpsConfirm - Pointer to the confirm structure,
@@ -468,8 +352,8 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
         }
 
         // Switch LED 1 ON
-        GpioWrite( &Led1, 0 );
-        TimerStart( &Led1Timer );
+        //GpioWrite( &Led1, 0 );
+        //TimerStart( &Led1Timer );
     }
     NextTx = true;
 }
@@ -539,150 +423,12 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
             if( mcpsIndication->BufferSize == 1 )
             {
                 AppLedStateOn = mcpsIndication->Buffer[0] & 0x01;
-                GpioWrite( &Led3, ( ( AppLedStateOn & 0x01 ) != 0 ) ? 0 : 1 );
+                //GpioWrite( &Led3, ( ( AppLedStateOn & 0x01 ) != 0 ) ? 0 : 1 );
             }
             break;
         case 224:
             if( ComplianceTest.Running == false )
             {
-                // Check compliance test enable command (i)
-                if( ( mcpsIndication->BufferSize == 4 ) &&
-                    ( mcpsIndication->Buffer[0] == 0x01 ) &&
-                    ( mcpsIndication->Buffer[1] == 0x01 ) &&
-                    ( mcpsIndication->Buffer[2] == 0x01 ) &&
-                    ( mcpsIndication->Buffer[3] == 0x01 ) )
-                {
-                    IsTxConfirmed = false;
-                    AppPort = 224;
-                    AppDataSizeBackup = AppDataSize;
-                    AppDataSize = 2;
-                    ComplianceTest.DownLinkCounter = 0;
-                    ComplianceTest.LinkCheck = false;
-                    ComplianceTest.DemodMargin = 0;
-                    ComplianceTest.NbGateways = 0;
-                    ComplianceTest.Running = true;
-                    ComplianceTest.State = 1;
-
-                    MibRequestConfirm_t mibReq;
-                    mibReq.Type = MIB_ADR;
-                    mibReq.Param.AdrEnable = true;
-                    LoRaMacMibSetRequestConfirm( &mibReq );
-
-#if defined( REGION_EU868 )
-                    LoRaMacTestSetDutyCycleOn( false );
-#endif
-                    GpsStop( );
-                }
-            }
-            else
-            {
-                ComplianceTest.State = mcpsIndication->Buffer[0];
-                switch( ComplianceTest.State )
-                {
-                case 0: // Check compliance test disable command (ii)
-                    IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
-                    AppPort = LORAWAN_APP_PORT;
-                    AppDataSize = AppDataSizeBackup;
-                    ComplianceTest.DownLinkCounter = 0;
-                    ComplianceTest.Running = false;
-
-                    MibRequestConfirm_t mibReq;
-                    mibReq.Type = MIB_ADR;
-                    mibReq.Param.AdrEnable = LORAWAN_ADR_ON;
-                    LoRaMacMibSetRequestConfirm( &mibReq );
-#if defined( REGION_EU868 )
-                    LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
-#endif
-                    GpsStart( );
-                    break;
-                case 1: // (iii, iv)
-                    AppDataSize = 2;
-                    break;
-                case 2: // Enable confirmed messages (v)
-                    IsTxConfirmed = true;
-                    ComplianceTest.State = 1;
-                    break;
-                case 3:  // Disable confirmed messages (vi)
-                    IsTxConfirmed = false;
-                    ComplianceTest.State = 1;
-                    break;
-                case 4: // (vii)
-                    AppDataSize = mcpsIndication->BufferSize;
-
-                    AppData[0] = 4;
-                    for( uint8_t i = 1; i < MIN( AppDataSize, LORAWAN_APP_DATA_MAX_SIZE ); i++ )
-                    {
-                        AppData[i] = mcpsIndication->Buffer[i] + 1;
-                    }
-                    break;
-                case 5: // (viii)
-                    {
-                        MlmeReq_t mlmeReq;
-                        mlmeReq.Type = MLME_LINK_CHECK;
-                        LoRaMacMlmeRequest( &mlmeReq );
-                    }
-                    break;
-                case 6: // (ix)
-                    {
-                        MlmeReq_t mlmeReq;
-
-                        // Disable TestMode and revert back to normal operation
-                        IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
-                        AppPort = LORAWAN_APP_PORT;
-                        AppDataSize = AppDataSizeBackup;
-                        ComplianceTest.DownLinkCounter = 0;
-                        ComplianceTest.Running = false;
-
-                        MibRequestConfirm_t mibReq;
-                        mibReq.Type = MIB_ADR;
-                        mibReq.Param.AdrEnable = LORAWAN_ADR_ON;
-                        LoRaMacMibSetRequestConfirm( &mibReq );
-#if defined( REGION_EU868 )
-                        LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
-#endif
-                        GpsStart( );
-
-                        mlmeReq.Type = MLME_JOIN;
-
-                        mlmeReq.Req.Join.DevEui = DevEui;
-                        mlmeReq.Req.Join.AppEui = AppEui;
-                        mlmeReq.Req.Join.AppKey = AppKey;
-                        mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
-
-                        if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
-                        {
-                            DeviceState = DEVICE_STATE_SLEEP;
-                        }
-                        else
-                        {
-                            DeviceState = DEVICE_STATE_CYCLE;
-                        }
-                    }
-                    break;
-                case 7: // (x)
-                    {
-                        if( mcpsIndication->BufferSize == 3 )
-                        {
-                            MlmeReq_t mlmeReq;
-                            mlmeReq.Type = MLME_TXCW;
-                            mlmeReq.Req.TxCw.Timeout = ( uint16_t )( ( mcpsIndication->Buffer[1] << 8 ) | mcpsIndication->Buffer[2] );
-                            LoRaMacMlmeRequest( &mlmeReq );
-                        }
-                        else if( mcpsIndication->BufferSize == 7 )
-                        {
-                            MlmeReq_t mlmeReq;
-                            mlmeReq.Type = MLME_TXCW_1;
-                            mlmeReq.Req.TxCw.Timeout = ( uint16_t )( ( mcpsIndication->Buffer[1] << 8 ) | mcpsIndication->Buffer[2] );
-                            mlmeReq.Req.TxCw.Frequency = ( uint32_t )( ( mcpsIndication->Buffer[3] << 16 ) | ( mcpsIndication->Buffer[4] << 8 ) | mcpsIndication->Buffer[5] ) * 100;
-                            mlmeReq.Req.TxCw.Power = mcpsIndication->Buffer[6];
-                            LoRaMacMlmeRequest( &mlmeReq );
-                        }
-                        ComplianceTest.State = 1;
-                    }
-                    break;
-                default:
-                    break;
-                }
             }
             break;
         default:
@@ -691,8 +437,8 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
     }
 
     // Switch LED 2 ON for each received downlink
-    GpioWrite( &Led2, 0 );
-    TimerStart( &Led2Timer );
+    //GpioWrite( &Led2, 0 );
+    //TimerStart( &Led2Timer );
 }
 
 /*!
@@ -801,15 +547,6 @@ int main( void )
                 LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, ACTIVE_REGION );
 
                 TimerInit( &TxNextPacketTimer, OnTxNextPacketTimerEvent );
-
-                TimerInit( &Led1Timer, OnLed1TimerEvent );
-                TimerSetValue( &Led1Timer, 25 );
-
-                TimerInit( &Led2Timer, OnLed2TimerEvent );
-                TimerSetValue( &Led2Timer, 25 );
-
-                TimerInit( &Led4Timer, OnLed4TimerEvent );
-                TimerSetValue( &Led4Timer, 25 );
 
                 mibReq.Type = MIB_ADR;
                 mibReq.Param.AdrEnable = LORAWAN_ADR_ON;
@@ -924,12 +661,6 @@ int main( void )
                 DeviceState = DEVICE_STATE_INIT;
                 break;
             }
-        }
-        if( GpsGetPpsDetectedState( ) == true )
-        {
-            // Switch LED 4 ON
-            GpioWrite( &Led4, 0 );
-            TimerStart( &Led4Timer );
         }
     }
 }
