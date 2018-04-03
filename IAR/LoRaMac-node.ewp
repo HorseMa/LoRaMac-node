@@ -2098,7 +2098,7 @@
         <name>$PROJ_DIR$\..\src\mac\region\Region.h</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\src\mac\region\RegionCN470.c</name>
+        <name>$PROJ_DIR$\..\src\boards\MJLoRaWanModem\RegionCN470.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\src\mac\region\RegionCN470.h</name>
