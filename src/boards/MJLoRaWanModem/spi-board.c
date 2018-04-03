@@ -31,14 +31,22 @@ void SpiInit( Spi_t *obj, SpiId_t spiId, PinNames mosi, PinNames miso, PinNames 
 {
     SPI_DELAY_CONFIG_T DelayConfigStruct;
     BoardDisableIrq( );
+    Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_SWM);
 
+    //Chip_IOCON_PinSetMode(LPC_IOCON,IOCON_PIO23,PIN_MODE_REPEATER);
+    //Chip_IOCON_PinDisableOpenDrainMode(LPC_IOCON,IOCON_PIO23);
+    Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT,0,23); // NRESET
+    //Chip_IOCON_PinSetMode(LPC_IOCON,IOCON_PIO14,PIN_MODE_REPEATER);
     //Chip_IOCON_PinDisableOpenDrainMode(LPC_IOCON,IOCON_PIO14);
-    //Chip_SWM_MovablePinAssign(SWM_SPI1_SSEL0_IO, 14);
-    Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, 0, 14);
+    Chip_SWM_MovablePinAssign(SWM_SPI1_SSEL0_IO, 14);
+    Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 0, 14);
+    //Chip_IOCON_PinSetMode(LPC_IOCON,IOCON_PIO25,PIN_MODE_REPEATER);
     Chip_IOCON_PinDisableOpenDrainMode(LPC_IOCON,IOCON_PIO25);
     Chip_SWM_MovablePinAssign(SWM_SPI1_SCK_IO, 25);
+    //Chip_IOCON_PinSetMode(LPC_IOCON,IOCON_PIO7,PIN_MODE_REPEATER);
     //Chip_IOCON_PinDisableOpenDrainMode(LPC_IOCON,IOCON_PIO7);
     Chip_SWM_MovablePinAssign(SWM_SPI1_MISO_IO, 7);
+    //Chip_IOCON_PinSetMode(LPC_IOCON,IOCON_PIO6,PIN_MODE_REPEATER);
     Chip_IOCON_PinDisableOpenDrainMode(LPC_IOCON,IOCON_PIO6);
     Chip_SWM_MovablePinAssign(SWM_SPI1_MOSI_IO, 6);
     Chip_Clock_DisablePeriphClock(SYSCTL_CLOCK_SWM);
@@ -73,6 +81,12 @@ void SpiDeInit( Spi_t *obj )
 
 uint16_t SpiInOut( Spi_t *obj, uint16_t outData )
 {
+    Chip_SPI_ClearStatus(LPC_SPI1, SPI_STAT_CLR_RXOV | SPI_STAT_CLR_TXUR | SPI_STAT_CLR_SSA | SPI_STAT_CLR_SSD);
+    while (!(Chip_SPI_GetStatus(LPC_SPI1) & SPI_STAT_TXRDY)) {};
+    Chip_SPI_SendMidFrame(LPC_SPI1, outData);
+    while (!(Chip_SPI_GetStatus(LPC_SPI1) & SPI_STAT_RXRDY)) {};
+    return Chip_SPI_ReceiveFrame(LPC_SPI1);
+#if 0
     SPI_DATA_SETUP_T pXfSetup;
     uint16_t tx,rx;
     
@@ -88,5 +102,6 @@ uint16_t SpiInOut( Spi_t *obj, uint16_t outData )
     //Chip_GPIO_SetPinOutHighe(LPC_GPIO_PORT,0,14);
     BoardEnableIrq( );
     return *pXfSetup.pRx;
+#endif
 }
 

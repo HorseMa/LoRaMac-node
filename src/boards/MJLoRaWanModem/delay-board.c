@@ -27,7 +27,15 @@
 
 void DelayMs( uint32_t ms )
 {
-    uint32_t i,j;
+    uint32_t i,j,k;
+    for(k = 0;k < ms;k ++)
     for(i = 0;i < 1000;i++)
+      for(j = 0;j < 5;j++);
+}
+
+void DelayUs( uint32_t us )
+{
+    uint32_t j,k;
+    for(k = 0;k < us;k ++)
       for(j = 0;j < 5;j++);
 }

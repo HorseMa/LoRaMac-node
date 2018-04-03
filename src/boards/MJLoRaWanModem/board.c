@@ -61,16 +61,13 @@ void BoardEnableIrq( void )
     }
 }
 
-void BoardInitPeriph( void )
-{
-
-}
-
 void BoardInitMcu( void )
 {
     SystemCoreClockUpdate();
     Board_Init();
     UartMcuInit(NULL,0,PA_1,PA_1);
+    Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_SYS);
+    SysTick_Config(SystemCoreClock / 1000);
     SpiInit(NULL,SPI_1,PA_1,PA_1,PA_0,PA_0);
 }
 
@@ -83,41 +80,24 @@ void BoardResetMcu( void )
 
 }
 
-void BoardDeInitMcu( void )
-{
-}
-
 uint32_t BoardGetRandomSeed( void )
 {
-    return ( ( *( uint32_t* )ID1 ) ^ ( *( uint32_t* )ID2 ) ^ ( *( uint32_t* )ID3 ) );
+    uint32_t unique_id[4];
+    Chip_IAP_ReadUID(unique_id);
+    return ( unique_id[0] ^ unique_id[1] ^ unique_id[2] ^ unique_id[3] );
 }
 
 void BoardGetUniqueId( uint8_t *id )
 {
-    id[7] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID3 ) ) >> 24;
-    id[6] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID3 ) ) >> 16;
-    id[5] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID3 ) ) >> 8;
-    id[4] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID3 ) );
-    id[3] = ( ( *( uint32_t* )ID2 ) ) >> 24;
-    id[2] = ( ( *( uint32_t* )ID2 ) ) >> 16;
-    id[1] = ( ( *( uint32_t* )ID2 ) ) >> 8;
-    id[0] = ( ( *( uint32_t* )ID2 ) );
+    uint32_t unique_id[4];
+    Chip_IAP_ReadUID(unique_id);
+    memcpy(id,unique_id,8);
 }
 
 /*!
  * Factory power supply
  */
 #define FACTORY_POWER_SUPPLY                        3300 // mV
-
-/*!
- * VREF calibration value
- */
-#define VREFINT_CAL                                 ( *( uint16_t* )0x1FF80078 )
-
-/*!
- * ADC maximum value
- */
-#define ADC_MAX_VALUE                               4095
 
 /*!
  * Battery thresholds
@@ -127,78 +107,20 @@ void BoardGetUniqueId( uint8_t *id )
 #define BATTERY_SHUTDOWN_LEVEL                      3100 // mV
 
 static uint16_t BatteryVoltage = BATTERY_MAX_LEVEL;
+TimerTime_t systick = 0;
+TimerTime_t aLarmTimerTime = 0xffffffff;         // 上一次闹钟设置的超时时间
+TimerTime_t sTartAlarmTimerTime = 0;    // 上一次闹钟设置的当前时刻
 
-uint16_t BoardBatteryMeasureVolage( void )
-{
-    uint16_t batteryVoltage = 0;
-
-    return batteryVoltage;
-}
-
-uint32_t BoardGetBatteryVoltage( void )
-{
-    return BatteryVoltage;
-}
-
-uint8_t BoardGetBatteryLevel( void )
-{
-    uint8_t batteryLevel = 0;
-
-    BatteryVoltage = BoardBatteryMeasureVolage( );
-
-    if( GetBoardPowerSource( ) == USB_POWER )
-    {
-        batteryLevel = 0;
-    }
-    else
-    {
-        if( BatteryVoltage >= BATTERY_MAX_LEVEL )
-        {
-            batteryLevel = 254;
-        }
-        else if( ( BatteryVoltage > BATTERY_MIN_LEVEL ) && ( BatteryVoltage < BATTERY_MAX_LEVEL ) )
-        {
-            batteryLevel = ( ( 253 * ( BatteryVoltage - BATTERY_MIN_LEVEL ) ) / ( BATTERY_MAX_LEVEL - BATTERY_MIN_LEVEL ) ) + 1;
-        }
-        else if( ( BatteryVoltage > BATTERY_SHUTDOWN_LEVEL ) && ( BatteryVoltage <= BATTERY_MIN_LEVEL ) )
-        {
-            batteryLevel = 1;
-        }
-        else //if( BatteryVoltage <= BATTERY_SHUTDOWN_LEVEL )
-        {
-            batteryLevel = 255;
-            //GpioInit( &DcDcEnable, DC_DC_EN, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-            //GpioInit( &BoardPowerDown, BOARD_POWER_DOWN, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-        }
-    }
-    return batteryLevel;
-}
-
-void SystemClockReConfig( void )
-{
-
-}
 
 void SysTick_Handler( void )
 {
+    systick ++;
+    if(TimerGetElapsedTime(sTartAlarmTimerTime) >= aLarmTimerTime)
+    {
+        TimerIrqHandler();
+    }
     //HAL_IncTick( );
     //HAL_SYSTICK_IRQHandler( );
-}
-
-uint8_t GetBoardPowerSource( void )
-{
-#if defined( USE_USB_CDC )
-    if( GpioRead( &UsbDetect ) == 1 )
-    {
-        return USB_POWER;
-    }
-    else
-    {
-        return BATTERY_POWER;
-    }
-#else
-    return BATTERY_POWER;
-#endif
 }
 
 

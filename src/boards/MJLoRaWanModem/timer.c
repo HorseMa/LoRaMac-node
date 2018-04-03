@@ -71,6 +71,9 @@ static void TimerSetTimeout( TimerEvent_t *obj );
  * \retval true (the object is already in the list) or false
  */
 static bool TimerExists( TimerEvent_t *obj );
+extern TimerTime_t systick;
+extern TimerTime_t aLarmTimerTime;
+extern TimerTime_t sTartAlarmTimerTime;
 
 /*!
  * \brief Read the timer value of the currently running timer
@@ -368,29 +371,52 @@ void TimerSetValue( TimerEvent_t *obj, uint32_t value )
 
 TimerTime_t TimerGetValue( void )
 {
-    return RtcGetElapsedAlarmTime( );
+    return TimerGetElapsedTime(sTartAlarmTimerTime);
+    //return RtcGetElapsedAlarmTime( );
 }
 
 TimerTime_t TimerGetCurrentTime( void )
 {
-    return RtcGetTimerValue( );
+    return systick;
 }
 
 TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime )
 {
-    return RtcComputeElapsedTime( savedTime );
+    TimerTime_t elapsedTime = 0;
+
+    // Needed at boot, cannot compute with 0 or elapsed time will be equal to current time
+    /*if( savedTime == 0 )
+    {
+        return 0;
+    }*/
+
+    elapsedTime = TimerGetCurrentTime();
+
+    if( elapsedTime < savedTime )
+    { // roll over of the counter
+        return( elapsedTime + ( 0xFFFFFFFF - savedTime ) );
+    }
+    else
+    {
+        return( elapsedTime - savedTime );
+    }
 }
 
-TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture )
+/*TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture )
 {
     return RtcComputeFutureEventTime( eventInFuture );
-}
+}*/
 
 static void TimerSetTimeout( TimerEvent_t *obj )
 {
+    sTartAlarmTimerTime = TimerGetCurrentTime();
+    aLarmTimerTime = obj->Timestamp - TimerGetValue();
+    obj->Timestamp = aLarmTimerTime;
+#if 0
     HasLoopedThroughMain = 0;
-    //obj->Timestamp = RtcGetAdjustedTimeoutValue( obj->Timestamp );
+    obj->Timestamp = RtcGetAdjustedTimeoutValue( obj->Timestamp );
     RtcSetTimeout( obj->Timestamp );
+#endif
 }
 
 void TimerLowPowerHandler( void )

@@ -28,6 +28,7 @@
 #include "LoRaMac.h"
 #include "Commissioning.h"
 
+#define ACTIVE_REGION LORAMAC_REGION_CN470
 #ifndef ACTIVE_REGION
 
 #warning "No active region defined, LORAMAC_REGION_EU868 will be used as default."
@@ -62,7 +63,7 @@
  *
  * \remark Please note that when ADR is enabled the end-device should be static
  */
-#define LORAWAN_ADR_ON                              1
+#define LORAWAN_ADR_ON                              0
 
 #if defined( REGION_EU868 )
 
@@ -126,7 +127,7 @@ static uint8_t IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
 /*!
  * Defines the application data transmission duty cycle
  */
-static uint32_t TxDutyCycleTime;
+static uint32_t TxDutyCycleTime = 5000;
 
 /*!
  * Timer to handle the application data transmission duty cycle
@@ -303,7 +304,16 @@ static void OnTxNextPacketTimerEvent( void )
             mlmeReq.Req.Join.DevEui = DevEui;
             mlmeReq.Req.Join.AppEui = AppEui;
             mlmeReq.Req.Join.AppKey = AppKey;
-            mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
+            mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
+            status = LoRaMacMibGetRequestConfirm( &mibReq );
+            if( status == LORAMAC_STATUS_OK )
+            {
+                mlmeReq.Req.Join.Datarate = mibReq.Param.ChannelsDefaultDatarate;
+            }
+            else
+            {
+                mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
+            }
 
             if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
             {
@@ -529,7 +539,6 @@ int main( void )
     MibRequestConfirm_t mibReq;
 
     BoardInitMcu( );
-    BoardInitPeriph( );
 
     DeviceState = DEVICE_STATE_INIT;
 
@@ -543,7 +552,7 @@ int main( void )
                 LoRaMacPrimitives.MacMcpsIndication = McpsIndication;
                 LoRaMacPrimitives.MacMlmeConfirm = MlmeConfirm;
                 LoRaMacPrimitives.MacMlmeIndication = MlmeIndication;
-                LoRaMacCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
+                //LoRaMacCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
                 LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, ACTIVE_REGION );
 
                 TimerInit( &TxNextPacketTimer, OnTxNextPacketTimerEvent );
@@ -556,6 +565,34 @@ int main( void )
                 mibReq.Param.EnablePublicNetwork = LORAWAN_PUBLIC_NETWORK;
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
+                mibReq.Type = MIB_SYSTEM_MAX_RX_ERROR;
+                mibReq.Param.SystemMaxRxError = 50;
+                LoRaMacMibSetRequestConfirm( &mibReq );
+
+                mibReq.Type = MIB_CHANNELS_DEFAULT_TX_POWER;
+                mibReq.Param.ChannelsDefaultTxPower = TX_POWER_7;
+                LoRaMacMibSetRequestConfirm( &mibReq );
+                
+                mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
+                mibReq.Param.ChannelsDefaultDatarate = DR_0;
+                LoRaMacMibSetRequestConfirm( &mibReq );
+                
+                mibReq.Type = MIB_DEVICE_CLASS;
+                mibReq.Param.Class = CLASS_A;
+                LoRaMacMibSetRequestConfirm( &mibReq );
+
+                static uint16_t ChannelsDefaultMask[6];
+                mibReq.Param.ChannelsMask = ChannelsDefaultMask;
+                mibReq.Type = MIB_CHANNELS_DEFAULT_MASK;
+                ChannelsDefaultMask[0] = 0x0007;
+                ChannelsDefaultMask[1] = 0x0000;
+                ChannelsDefaultMask[2] = 0x0000;
+                ChannelsDefaultMask[3] = 0x0000;
+                ChannelsDefaultMask[4] = 0x0000;
+                ChannelsDefaultMask[5] = 0x0000;
+                
+                LoRaMacMibSetRequestConfirm( &mibReq );
+                
 #if defined( REGION_EU868 )
                 LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
 #endif
@@ -566,16 +603,25 @@ int main( void )
             {
 #if( OVER_THE_AIR_ACTIVATION != 0 )
                 MlmeReq_t mlmeReq;
-
+                LoRaMacStatus_t status;
                 // Initialize LoRaMac device unique ID
                 BoardGetUniqueId( DevEui );
 
                 mlmeReq.Type = MLME_JOIN;
-
+                                
                 mlmeReq.Req.Join.DevEui = DevEui;
                 mlmeReq.Req.Join.AppEui = AppEui;
                 mlmeReq.Req.Join.AppKey = AppKey;
-                mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
+                mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
+                status = LoRaMacMibGetRequestConfirm( &mibReq );
+                if( status == LORAMAC_STATUS_OK )
+                {
+                    mlmeReq.Req.Join.Datarate = mibReq.Param.ChannelsDefaultDatarate;
+                }
+                else
+                {
+                    mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
+                }
 
                 if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
                 {
@@ -653,7 +699,7 @@ int main( void )
             case DEVICE_STATE_SLEEP:
             {
                 // Wake up through events
-                TimerLowPowerHandler( );
+                //TimerLowPowerHandler( );
                 break;
             }
             default:

@@ -54,7 +54,7 @@ const struct Radio_s Radio =
     SX1276SetStby,
     SX1276SetRx,
     SX1276StartCad,
-    SX1276SetTxContinuousWave,
+    NULL,//SX1276SetTxContinuousWave,
     SX1276ReadRssi,
     SX1276Write,
     SX1276Read,
@@ -73,10 +73,49 @@ Gpio_t AntSwitchHf;
 
 void SX1276IoInit( void )
 {
+    Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_SWM);
+
+    /* Configure interrupt channel 0 for the GPIO pin in SysCon block */
+    //Chip_SWM_MovablePinAssign(SWM_SCT_IN0_I, 19);
+    Chip_SYSCTL_SetPinInterrupt(0, 19);   // DIO0
+
+    /* Configure channel 0 as wake up interrupt in SysCon block */
+    Chip_SYSCTL_EnablePINTWakeup(0);
+
+    /* Configure GPIO pin as input pin */
+    Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, 0, 19);
+
+    /* Configure interrupt channel 0 for the GPIO pin in SysCon block */
+    //Chip_SWM_MovablePinAssign(SWM_SCT_IN1_I, 18);
+    Chip_SYSCTL_SetPinInterrupt(1, 18);   // DIO1
+
+    /* Configure channel 0 as wake up interrupt in SysCon block */
+    Chip_SYSCTL_EnablePINTWakeup(1);
+
+    /* Configure GPIO pin as input pin */
+    Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, 0, 18);
+    
+    Chip_IOCON_PinDisableOpenDrainMode(LPC_IOCON,IOCON_PIO17);  // SDN
+    Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, 0, 17);
+    
+    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT,0,23,TRUE); // NRESET
 }
 
 void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
 {
+    /* Configure channel 0 interrupt as edge sensitive and falling edge interrupt */
+    Chip_PININT_SetPinModeEdge(LPC_PININT, PININTCH0);
+    Chip_PININT_EnableIntHigh(LPC_PININT, PININTCH0);
+
+    /* Enable interrupt in the NVIC */
+    NVIC_EnableIRQ(PININT0_IRQn);
+
+    /* Configure channel 0 interrupt as edge sensitive and falling edge interrupt */
+    Chip_PININT_SetPinModeEdge(LPC_PININT, PININTCH1);
+    Chip_PININT_EnableIntHigh(LPC_PININT, PININTCH1);
+
+    /* Enable interrupt in the NVIC */
+    NVIC_EnableIRQ(PININT1_IRQn);
 }
 
 void SX1276IoDeInit( void )
@@ -111,8 +150,10 @@ uint32_t SX1276GetBoardTcxoWakeupTime( void )
 
 void SX1276Reset( void )
 {
+    //Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT,0,14);
     Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT,0,23);
     DelayMs(1);
+    //Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT,0,14);
     Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT,0,23);
     DelayMs(6);
 }
@@ -212,10 +253,14 @@ void SX1276SetAntSwLowPower( bool status )
 
 void SX1276AntSwInit( void )
 {
+    Chip_IOCON_PinSetMode(LPC_IOCON,IOCON_PIO17,PIN_MODE_REPEATER);
+    Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, 0, 17);
 }
 
 void SX1276AntSwDeInit( void )
 {
+    Chip_IOCON_PinSetMode(LPC_IOCON,IOCON_PIO17,PIN_MODE_INACTIVE);
+    Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT,0,17);
 }
 
 void SX1276SetAntSw( uint8_t opMode )
@@ -223,11 +268,13 @@ void SX1276SetAntSw( uint8_t opMode )
     switch( opMode )
     {
     case RFLR_OPMODE_TRANSMITTER:
+        Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT,0,17);
         break;
     case RFLR_OPMODE_RECEIVER:
     case RFLR_OPMODE_RECEIVER_SINGLE:
     case RFLR_OPMODE_CAD:
     default:
+        Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT,0,17);
         break;
     }
 }
@@ -269,14 +316,16 @@ void SX1276OnDio5Irq( void );
 
 void PININT0_IRQHandler( void )
 {
+    Chip_PININT_ClearIntStatus(LPC_PININT, PININTCH0);
     SX1276OnDio0Irq();
 }
 
 void PININT1_IRQHandler( void )
 {
+    Chip_PININT_ClearIntStatus(LPC_PININT, PININTCH1);
     SX1276OnDio1Irq();
 }
-
+#if 0
 void PININT2_IRQHandler( void )
 {
     SX1276OnDio2Irq();
@@ -296,3 +345,4 @@ void PININT5_IRQHandler( void )
 {
     SX1276OnDio5Irq();
 }
+#endif
