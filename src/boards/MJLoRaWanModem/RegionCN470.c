@@ -371,6 +371,13 @@ bool RegionCN470ChanMaskSet( ChanMaskSetParams_t* chanMaskSet )
         case CHANNELS_DEFAULT_MASK:
         {
             RegionCommonChanMaskCopy( ChannelsDefaultMask, chanMaskSet->ChannelsMaskIn, 6 );
+            for( uint8_t i = 0; i < CN470_MAX_NB_CHANNELS; i++ )
+            {
+                if(ChannelsDefaultMask[i / 16] & (1 << (i % 16)))
+                {
+                    Channels[i].DrRange.Value = ( (i % 6) << 4 ) | (i % 6);
+                }
+            }
             break;
         }
         default:
@@ -426,12 +433,13 @@ bool RegionCN470AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
                         if( adrNext->UpdateChanMask == true )
                         {
                             // Re-enable default channels
-                            ChannelsMask[0] = 0xFFFF;
+                            RegionCN470InitDefaults(INIT_TYPE_RESTORE);
+                            /*ChannelsMask[0] = 0xFFFF;
                             ChannelsMask[1] = 0xFFFF;
                             ChannelsMask[2] = 0xFFFF;
                             ChannelsMask[3] = 0xFFFF;
                             ChannelsMask[4] = 0xFFFF;
-                            ChannelsMask[5] = 0xFFFF;
+                            ChannelsMask[5] = 0xFFFF;*/
                         }
                     }
                 }
@@ -550,12 +558,13 @@ uint8_t RegionCN470LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
         if( linkAdrParams.ChMaskCtrl == 6 )
         {
             // Enable all 125 kHz channels
-            channelsMask[0] = 0xFFFF;
+            RegionCN470InitDefaults(INIT_TYPE_RESTORE);
+            /*channelsMask[0] = 0xFFFF;
             channelsMask[1] = 0xFFFF;
             channelsMask[2] = 0xFFFF;
             channelsMask[3] = 0xFFFF;
             channelsMask[4] = 0xFFFF;
-            channelsMask[5] = 0xFFFF;
+            channelsMask[5] = 0xFFFF;*/
         }
         else if( linkAdrParams.ChMaskCtrl == 7 )
         {
@@ -691,12 +700,13 @@ LoRaMacStatus_t RegionCN470NextChannel( NextChanParams_t* nextChanParams, uint8_
     // Count 125kHz channels
     if( RegionCommonCountChannels( ChannelsMask, 0, 6 ) == 0 )
     { // Reactivate default channels
-        ChannelsMask[0] = 0xFFFF;
+        RegionCN470InitDefaults(INIT_TYPE_RESTORE);
+        /*ChannelsMask[0] = 0xFFFF;
         ChannelsMask[1] = 0xFFFF;
         ChannelsMask[2] = 0xFFFF;
         ChannelsMask[3] = 0xFFFF;
         ChannelsMask[4] = 0xFFFF;
-        ChannelsMask[5] = 0xFFFF;
+        ChannelsMask[5] = 0xFFFF;*/
     }
 
     if( nextChanParams->AggrTimeOff <= TimerGetElapsedTime( nextChanParams->LastAggrTx ) )
