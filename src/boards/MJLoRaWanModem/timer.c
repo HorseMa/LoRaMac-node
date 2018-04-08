@@ -409,9 +409,8 @@ TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime )
 
 static void TimerSetTimeout( TimerEvent_t *obj )
 {
+    aLarmTimerTime = obj->Timestamp;
     sTartAlarmTimerTime = TimerGetCurrentTime();
-    aLarmTimerTime = obj->Timestamp - TimerGetValue();
-    obj->Timestamp = aLarmTimerTime;
 #if 0
     HasLoopedThroughMain = 0;
     obj->Timestamp = RtcGetAdjustedTimeoutValue( obj->Timestamp );

@@ -34,6 +34,7 @@
 #include "sx1276.h"
 #include "sx1276-board.h"
 #include "lpc824board.h"
+#include "debug.h"
 
 /*
  * Local types definition
@@ -1290,9 +1291,9 @@ void SX1276WriteBuffer( uint16_t addr, uint8_t *buffer, uint8_t size )
 #if 1
     uint16_t loop = 0,temp = 0;
     Chip_SPI_ClearStatus(LPC_SPI1, SPI_STAT_CLR_RXOV | SPI_STAT_CLR_TXUR | SPI_STAT_CLR_SSA | SPI_STAT_CLR_SSD);
-    Chip_SPI_SetControlInfo(LPC_SPI1, 8, SPI_TXCTL_ASSERT_SSEL | SPI_TXCTL_EOF);
+    //Chip_SPI_SetControlInfo(LPC_SPI1, 8, SPI_TXCTL_ASSERT_SSEL | SPI_TXCTL_EOF);
     while(!(Chip_SPI_GetStatus(LPC_SPI1) & SPI_STAT_TXRDY));
-    Chip_SPI_SendMidFrame(LPC_SPI1, addr | 0x80);
+    Chip_SPI_SendFirstFrame(LPC_SPI1, addr | 0x80,8);
     while (!(Chip_SPI_GetStatus(LPC_SPI1) & SPI_STAT_RXRDY)) {};
     temp = Chip_SPI_ReceiveFrame(LPC_SPI1);
     while(loop < size)
@@ -1310,14 +1311,19 @@ void SX1276WriteBuffer( uint16_t addr, uint8_t *buffer, uint8_t size )
         temp = Chip_SPI_ReceiveFrame(LPC_SPI1);
         loop ++;
     }
-    Chip_SPI_SetControlInfo(LPC_SPI1, 8, SPI_TXCTL_DEASSERT_SSEL);
+    /* Check error */
+    if (Chip_SPI_GetStatus(LPC_SPI1) & (SPI_STAT_CLR_RXOV | SPI_STAT_CLR_TXUR)) {
+        while(1);
+    }
+    //Chip_SPI_SetControlInfo(LPC_SPI1, 8, SPI_TXCTL_DEASSERT_SSEL);
 #endif
 #if 0
     uint8_t i;
 
     //NSS = 0;
     Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT,0,14);
-    DelayUs(5);
+    Chip_SPI_SetControlInfo(LPC_SPI1, 8, 0);
+    //DelayUs(5);
     SpiInOut( &SX1276.Spi, addr | 0x80 );
     for( i = 0; i < size; i++ )
     {
@@ -1334,9 +1340,9 @@ void SX1276ReadBuffer( uint16_t addr, uint8_t *buffer, uint8_t size )
 #if 1
     uint16_t loop = 0;
     Chip_SPI_ClearStatus(LPC_SPI1, SPI_STAT_CLR_RXOV | SPI_STAT_CLR_TXUR | SPI_STAT_CLR_SSA | SPI_STAT_CLR_SSD);
-    Chip_SPI_SetControlInfo(LPC_SPI1, 8, SPI_TXCTL_ASSERT_SSEL | SPI_TXCTL_EOF);
+    //Chip_SPI_SetControlInfo(LPC_SPI1, 8, SPI_TXCTL_ASSERT_SSEL | SPI_TXCTL_EOF);
     while(!(Chip_SPI_GetStatus(LPC_SPI1) & SPI_STAT_TXRDY));
-    Chip_SPI_SendMidFrame(LPC_SPI1, addr & 0x7F);
+    Chip_SPI_SendFirstFrame(LPC_SPI1, addr & 0x7F,8);
     while (!(Chip_SPI_GetStatus(LPC_SPI1) & SPI_STAT_RXRDY)) {};
     buffer[0] = Chip_SPI_ReceiveFrame(LPC_SPI1);
     while(loop < size)
@@ -1356,15 +1362,18 @@ void SX1276ReadBuffer( uint16_t addr, uint8_t *buffer, uint8_t size )
       while (!(Chip_SPI_GetStatus(LPC_SPI1) & SPI_STAT_RXRDY)) {};
       buffer[loop++] = Chip_SPI_ReceiveFrame(LPC_SPI1);
     }
-    Chip_SPI_SetControlInfo(LPC_SPI1, 8, SPI_TXCTL_DEASSERT_SSEL);
+    if (Chip_SPI_GetStatus(LPC_SPI1) & (SPI_STAT_CLR_RXOV | SPI_STAT_CLR_TXUR)) {
+        while(1);
+    }
+    //Chip_SPI_SetControlInfo(LPC_SPI1, 8, SPI_TXCTL_DEASSERT_SSEL);
 #endif
 #if 0
     uint8_t i;
 
     //NSS = 0;
     Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT,0,14);
-    Chip_SPI_SetControlInfo(LPC_SPI1, 8, SPI_TXCTL_ASSERT_SSEL | SPI_TXCTL_EOF);
-    DelayUs(5);
+    Chip_SPI_SetControlInfo(LPC_SPI1, 8, 0);
+    //DelayUs(5);
     SpiInOut( &SX1276.Spi, addr & 0x7F );
 
     for( i = 0; i < size; i++ )

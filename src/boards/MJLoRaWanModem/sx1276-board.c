@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include "utilities.h"
 #include "board-config.h"
+#include "board.h"
 #include "delay.h"
 #include "radio.h"
 #include "sx1276-board.h"
@@ -108,6 +109,7 @@ void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
     Chip_PININT_EnableIntHigh(LPC_PININT, PININTCH0);
 
     /* Enable interrupt in the NVIC */
+    NVIC_SetPriority (PININT0_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
     NVIC_EnableIRQ(PININT0_IRQn);
 
     /* Configure channel 0 interrupt as edge sensitive and falling edge interrupt */
@@ -115,6 +117,7 @@ void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
     Chip_PININT_EnableIntHigh(LPC_PININT, PININTCH1);
 
     /* Enable interrupt in the NVIC */
+    NVIC_SetPriority (PININT1_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
     NVIC_EnableIRQ(PININT1_IRQn);
 }
 
@@ -316,14 +319,18 @@ void SX1276OnDio5Irq( void );
 
 void PININT0_IRQHandler( void )
 {
+    //BoardDisableIrq( );
     Chip_PININT_ClearIntStatus(LPC_PININT, PININTCH0);
     SX1276OnDio0Irq();
+    //BoardEnableIrq( );
 }
 
 void PININT1_IRQHandler( void )
 {
+    //BoardDisableIrq( );
     Chip_PININT_ClearIntStatus(LPC_PININT, PININTCH1);
     SX1276OnDio1Irq();
+    //BoardEnableIrq( );
 }
 #if 0
 void PININT2_IRQHandler( void )

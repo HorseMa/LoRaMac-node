@@ -32,6 +32,7 @@
 #include "LoRaMac.h"
 #include "LoRaMacCrypto.h"
 #include "LoRaMacTest.h"
+#include "debug.h"
 
 /*!
  * Maximum PHY layer payload size
@@ -798,6 +799,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
             LoRaMacRxPayload[0] = macHdr.Value;
 
             LoRaMacJoinComputeMic( LoRaMacRxPayload, size - LORAMAC_MFR_LEN, LoRaMacAppKey, &mic );
+            mic += LoRaMacDevNonce;
 
             micRx |= ( uint32_t )LoRaMacRxPayload[size - LORAMAC_MFR_LEN];
             micRx |= ( ( uint32_t )LoRaMacRxPayload[size - LORAMAC_MFR_LEN + 1] << 8 );
@@ -848,6 +850,11 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
         case FRAME_TYPE_DATA_CONFIRMED_DOWN:
         case FRAME_TYPE_DATA_UNCONFIRMED_DOWN:
             {
+                if( IsLoRaMacNetworkJoined == false )
+                {
+                    MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
+                    break;
+                }
                 // Check if the received payload size is valid
                 getPhy.UplinkDwellTime = LoRaMacParams.DownlinkDwellTime;
                 getPhy.Datarate = McpsIndication.RxDatarate;
@@ -1109,6 +1116,17 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
             break;
         case FRAME_TYPE_PROPRIETARY:
             {
+                if( IsLoRaMacNetworkJoined == false )
+                {
+                    MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
+                    break;
+                }
+                else
+                {
+                    McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
+                    PrepareRxDoneAbort( );
+                    return;
+                }
                 memcpy1( LoRaMacRxPayload, &payload[pktHeaderLen], size );
 
                 McpsIndication.McpsIndication = MCPS_PROPRIETARY;
@@ -1120,9 +1138,17 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                 break;
             }
         default:
-            McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
-            PrepareRxDoneAbort( );
-            break;
+                if( IsLoRaMacNetworkJoined == false )
+                {
+                    MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
+                    break;
+                }
+                else
+                {
+                    McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
+                    PrepareRxDoneAbort( );
+                    return;
+                }
     }
 
     // Verify if we need to disable the AckTimeoutTimer
@@ -1771,6 +1797,7 @@ static uint8_t ParseMacCommandsToRepeat( uint8_t* cmdBufIn, uint8_t length, uint
 
 static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t commandsSize, uint8_t snr )
 {
+#if 0
     uint8_t status = 0;
 
     while( macIndex < commandsSize )
@@ -1946,6 +1973,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 return;
         }
     }
+#endif
 }
 
 LoRaMacStatus_t Send( LoRaMacHeader_t *macHdr, uint8_t fPort, void *fBuffer, uint16_t fBufferSize )
@@ -2166,7 +2194,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
     }
 
     LoRaMacTxPayloadLen = fBufferSize;
-
+    macHdr->Bits.RFU = CLASS_C;
     LoRaMacBuffer[pktHeaderLen++] = macHdr->Value;
 
     switch( macHdr->Bits.MType )
@@ -2179,7 +2207,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
             memcpyr( LoRaMacBuffer + LoRaMacBufferPktLen, LoRaMacDevEui, 8 );
             LoRaMacBufferPktLen += 8;
 
-            LoRaMacDevNonce = Radio.Random( );
+            LoRaMacDevNonce = rand1();//Radio.Random( );
 
             LoRaMacBuffer[LoRaMacBufferPktLen++] = LoRaMacDevNonce & 0xFF;
             LoRaMacBuffer[LoRaMacBufferPktLen++] = ( LoRaMacDevNonce >> 8 ) & 0xFF;
@@ -2351,6 +2379,7 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
 
 LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout )
 {
+#if 0
     ContinuousWaveParams_t continuousWave;
 
     continuousWave.Channel = Channel;
@@ -2368,11 +2397,13 @@ LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout )
 
     LoRaMacState |= LORAMAC_TX_RUNNING;
 
+#endif
     return LORAMAC_STATUS_OK;
 }
 
 LoRaMacStatus_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint8_t power )
 {
+#if 0
     Radio.SetTxContinuousWave( frequency, power, timeout );
 
     // Starts the MAC layer status check timer
@@ -2381,6 +2412,7 @@ LoRaMacStatus_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint
 
     LoRaMacState |= LORAMAC_TX_RUNNING;
 
+#endif
     return LORAMAC_STATUS_OK;
 }
 
@@ -2522,7 +2554,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     Radio.Init( &RadioEvents );
 
     // Random seed initialization
-    srand1( Radio.Random( ) );
+    //srand1( Radio.Random( ) );
 
     PublicNetwork = true;
     Radio.SetPublicNetwork( PublicNetwork );

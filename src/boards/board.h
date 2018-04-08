@@ -24,6 +24,7 @@
 #define __BOARD_H__
 
 #include <stdint.h>
+#include "debug.h"
 
 /*!
  * Possible power sources

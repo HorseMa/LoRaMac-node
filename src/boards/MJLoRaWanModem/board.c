@@ -114,11 +114,13 @@ TimerTime_t sTartAlarmTimerTime = 0;    // 上一次闹钟设置的当前时刻
 
 void SysTick_Handler( void )
 {
+    //BoardDisableIrq( );
     systick ++;
     if(TimerGetElapsedTime(sTartAlarmTimerTime) >= aLarmTimerTime)
     {
         TimerIrqHandler();
     }
+    //BoardEnableIrq( );
     //HAL_IncTick( );
     //HAL_SYSTICK_IRQHandler( );
 }
@@ -146,8 +148,8 @@ void assert_failed( uint8_t* file, uint32_t line )
     }
 }
 
-void GpioWrite( Gpio_t *obj, uint32_t value )
+/*void GpioWrite( Gpio_t *obj, uint32_t value )
 {
   value?Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT,0,14):Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT,0,14);
-}
+}*/
 #endif

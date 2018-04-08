@@ -600,7 +600,7 @@
         <option>
           <name>OOCOutputFormat</name>
           <version>2</version>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>OCOutputOverride</name>
@@ -608,7 +608,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state></state>
+          <state>LoRaMac-node.hex</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -616,7 +616,7 @@
         </option>
         <option>
           <name>OOCObjCopyEnable</name>
-          <state>0</state>
+          <state>1</state>
         </option>
       </data>
     </settings>
@@ -2042,6 +2042,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\src\boards\MJLoRaWanModem\rtc-board.c</name>
+        <excluded>
+          <configuration>Debug</configuration>
+        </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\..\src\boards\MJLoRaWanModem\spi-board.c</name>

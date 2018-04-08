@@ -25,6 +25,7 @@
 
 #include "utilities.h"
 #include "board.h"
+#include "lpc824board.h"
 #include "LoRaMac.h"
 #include "Commissioning.h"
 
@@ -127,7 +128,7 @@ static uint8_t IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
 /*!
  * Defines the application data transmission duty cycle
  */
-static uint32_t TxDutyCycleTime = 5000;
+static uint32_t TxDutyCycleTime = APP_TX_DUTYCYCLE;
 
 /*!
  * Timer to handle the application data transmission duty cycle
@@ -240,13 +241,18 @@ static bool SendFrame( void )
     McpsReq_t mcpsReq;
     LoRaMacTxInfo_t txInfo;
 
+    MibRequestConfirm_t mibReq;
+    
+    mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
+    LoRaMacMibGetRequestConfirm( &mibReq );
+    
     if( LoRaMacQueryTxPossible( AppDataSize, &txInfo ) != LORAMAC_STATUS_OK )
     {
         // Send empty frame in order to flush MAC commands
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fBuffer = NULL;
         mcpsReq.Req.Unconfirmed.fBufferSize = 0;
-        mcpsReq.Req.Unconfirmed.Datarate = LORAWAN_DEFAULT_DATARATE;
+        mcpsReq.Req.Unconfirmed.Datarate = mibReq.Param.ChannelsDefaultDatarate;
     }
     else
     {
@@ -256,7 +262,7 @@ static bool SendFrame( void )
             mcpsReq.Req.Unconfirmed.fPort = AppPort;
             mcpsReq.Req.Unconfirmed.fBuffer = AppData;
             mcpsReq.Req.Unconfirmed.fBufferSize = AppDataSize;
-            mcpsReq.Req.Unconfirmed.Datarate = LORAWAN_DEFAULT_DATARATE;
+            mcpsReq.Req.Unconfirmed.Datarate = mibReq.Param.ChannelsDefaultDatarate;
         }
         else
         {
@@ -265,7 +271,7 @@ static bool SendFrame( void )
             mcpsReq.Req.Confirmed.fBuffer = AppData;
             mcpsReq.Req.Confirmed.fBufferSize = AppDataSize;
             mcpsReq.Req.Confirmed.NbTrials = 8;
-            mcpsReq.Req.Confirmed.Datarate = LORAWAN_DEFAULT_DATARATE;
+            mcpsReq.Req.Confirmed.Datarate = mibReq.Param.ChannelsDefaultDatarate;
         }
     }
 
@@ -378,6 +384,13 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
 {
     if( mcpsIndication->Status != LORAMAC_EVENT_INFO_STATUS_OK )
     {
+        if(mcpsIndication->Status == LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS)
+        {
+            DEBUG_OUTPUT("Reset\r\n");
+            SX1276Reset();
+            DelayMs(7);
+            BoardResetMcu();
+        }
         return;
     }
 
@@ -540,6 +553,7 @@ int main( void )
 
     BoardInitMcu( );
 
+    DEBUG_OUTPUT("Power on\r\n");
     DeviceState = DEVICE_STATE_INIT;
 
     while( 1 )
@@ -548,6 +562,7 @@ int main( void )
         {
             case DEVICE_STATE_INIT:
             {
+                srand1( BoardGetRandomSeed( ) );
                 LoRaMacPrimitives.MacMcpsConfirm = McpsConfirm;
                 LoRaMacPrimitives.MacMcpsIndication = McpsIndication;
                 LoRaMacPrimitives.MacMlmeConfirm = MlmeConfirm;
@@ -574,11 +589,11 @@ int main( void )
                 LoRaMacMibSetRequestConfirm( &mibReq );
                 
                 mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
-                mibReq.Param.ChannelsDefaultDatarate = DR_0;
+                mibReq.Param.ChannelsDefaultDatarate = DR_2;
                 LoRaMacMibSetRequestConfirm( &mibReq );
                 
                 mibReq.Type = MIB_DEVICE_CLASS;
-                mibReq.Param.Class = CLASS_A;
+                mibReq.Param.Class = CLASS_C;
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
                 static uint16_t ChannelsDefaultMask[6];
@@ -636,7 +651,7 @@ int main( void )
                 if( DevAddr == 0 )
                 {
                     // Random seed initialization
-                    srand1( BoardGetRandomSeed( ) );
+                    //srand1( BoardGetRandomSeed( ) );
 
                     // Choose a random device address
                     DevAddr = randr( 0, 0x01FFFFFF );
@@ -682,8 +697,9 @@ int main( void )
                 else
                 {
                     // Schedule next packet transmission
-                    TxDutyCycleTime = APP_TX_DUTYCYCLE + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND );
+                    TxDutyCycleTime = randr( 0, 1500 );
                 }
+                DEBUG_OUTPUT("TxDutyCycleTime = %d\r\n",TxDutyCycleTime);
                 DeviceState = DEVICE_STATE_CYCLE;
                 break;
             }
@@ -694,6 +710,7 @@ int main( void )
                 // Schedule next packet transmission
                 TimerSetValue( &TxNextPacketTimer, TxDutyCycleTime );
                 TimerStart( &TxNextPacketTimer );
+                DEBUG_OUTPUT("Start tx packet timer\r\n");
                 break;
             }
             case DEVICE_STATE_SLEEP:

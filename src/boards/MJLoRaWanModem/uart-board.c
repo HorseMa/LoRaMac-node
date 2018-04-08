@@ -47,7 +47,7 @@
 RINGBUFF_T txring, rxring;
 
 /* Ring buffer size */
-#define UART_RB_SIZE 1024
+#define UART_RB_SIZE (128 * 2)
 
 /* Set the default UART, IRQ number, and IRQ handler name */
 #define LPC_USART       LPC_USART0
@@ -57,6 +57,7 @@ RINGBUFF_T txring, rxring;
 /* Default baudrate for testing */
 #define UART_TEST_DEFAULT_BAUDRATE 115200
 #define	UART_CLOCK_DIV	1
+#define PUTCHAR_PROTOTYPE int putchar(int ch)
 
 /* Transmit and receive buffers */
 static uint8_t rxbuff[UART_RB_SIZE], txbuff[UART_RB_SIZE];
@@ -101,4 +102,12 @@ void UartMcuInit( Uart_t *obj, UartId_t uartId, PinNames tx, PinNames rx )
     BoardEnableIrq( );
 }
 
+PUTCHAR_PROTOTYPE{  
+  Chip_UART_SendRB(LPC_USART0, &txring, (char *)(&(ch)), 1);
+  return ch;  
+}   
+
+void USART_IRQHANDLER (void) {
+    Chip_UART_IRQRBHandler(LPC_USART0, &rxring, &txring);
+}
 

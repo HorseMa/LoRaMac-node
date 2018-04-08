@@ -221,7 +221,7 @@ void Board_GPIO_Init(void)
     Chip_SWM_DisableFixedPin(SWM_FIXED_ADC11);
     Chip_Clock_DisablePeriphClock(SYSCTL_CLOCK_SWM);
         
-    Chip_GPIO_SetPortDIRInput(LPC_GPIO_PORT,0,0x1FFFFFFF);
+    /*Chip_GPIO_SetPortDIRInput(LPC_GPIO_PORT,0,0x1FFFFFFF);
     //Chip_GPIO_SetPortValue(LPC_GPIO_PORT,0,~0x1FFFF7DF);
     Chip_IOCON_PinEnableOpenDrainMode(LPC_IOCON,IOCON_PIO0);
     Chip_IOCON_PinEnableOpenDrainMode(LPC_IOCON,IOCON_PIO1);
@@ -253,6 +253,7 @@ void Board_GPIO_Init(void)
     Chip_IOCON_PinEnableOpenDrainMode(LPC_IOCON,IOCON_PIO27);
     Chip_IOCON_PinEnableOpenDrainMode(LPC_IOCON,IOCON_PIO28);
     
+    */
     Chip_IOCON_PinSetMode(LPC_IOCON,IOCON_PIO0,PIN_MODE_INACTIVE);
     Chip_IOCON_PinSetMode(LPC_IOCON,IOCON_PIO1,PIN_MODE_INACTIVE);
     //Chip_IOCON_PinSetMode(LPC_IOCON,IOCON_PIO2,PIN_MODE_INACTIVE);
