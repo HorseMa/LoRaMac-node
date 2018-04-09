@@ -302,7 +302,7 @@
           <name>CCIncludePath2</name>
           <state>$PROJ_DIR$</state>
           <state>$PROJ_DIR$\..\src\apps\LoRaMac\classA\MJLoRaWanModem</state>
-          <state>$PROJ_DIR$\..\src\atcmd</state>
+          <state>$PROJ_DIR$\..\src\apps\LoRaMac\classA\MJLoRaWanModem\Modem</state>
           <state>$PROJ_DIR$\..\src\boards</state>
           <state>$PROJ_DIR$\..\src\boards\MJLoRaWanModem</state>
           <state>$PROJ_DIR$\..\src\boards\mcu\lpc824\brd_xpresso824\inc</state>
@@ -1907,7 +1907,16 @@
       <name>$PROJ_DIR$\..\src\apps\LoRaMac\classA\MJLoRaWanModem\Commissioning.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\src\apps\LoRaMac\classA\MJLoRaWanModem\Modem\frame.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\src\apps\LoRaMac\classA\MJLoRaWanModem\Modem\hex.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\src\apps\LoRaMac\classA\MJLoRaWanModem\main.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\src\apps\LoRaMac\classA\MJLoRaWanModem\Modem\modem.c</name>
     </file>
   </group>
   <group>

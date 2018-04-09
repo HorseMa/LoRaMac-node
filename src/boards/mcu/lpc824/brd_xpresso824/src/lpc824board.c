@@ -47,7 +47,7 @@ static const uint8_t ledBits[LEDSAVAIL] = {11};
 /* System oscillator rate and clock rate on the CLKIN pin */
 const uint32_t OscRateIn = 12000000;
 const uint32_t ExtRateIn = 0;
-
+static uint8_t ledstatus = 0;
 /*****************************************************************************
  * Private functions
  ****************************************************************************/
@@ -94,7 +94,16 @@ void Board_LED_Set(uint8_t LEDNumber, bool On)
 {
 	if (LEDNumber < LEDSAVAIL) {
 		Chip_GPIO_SetPinState(LPC_GPIO_PORT, 0, ledBits[LEDNumber], (bool) !On);
+                ledstatus = On;
 	}
+}
+
+uint8_t Board_LED_Get(uint8_t LEDNumber)
+{
+    if (LEDNumber < LEDSAVAIL) {
+        return ledstatus;
+    }
+    return ledstatus;
 }
 
 /* Return the state of LEDNumber */

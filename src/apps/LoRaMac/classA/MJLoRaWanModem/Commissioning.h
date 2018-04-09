@@ -51,7 +51,7 @@
 /*!
  * Application IEEE EUI (big endian)
  */
-#define LORAWAN_APPLICATION_EUI                     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
+#define LORAWAN_APPLICATION_EUI                     { 'M', 'J', '-', 'M', 'o', 'd', 'e', 'm' }
 
 /*!
  * AES encryption/decryption cipher application key

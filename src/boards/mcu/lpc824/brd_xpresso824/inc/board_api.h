@@ -129,7 +129,7 @@ void Board_UARTPutSTR(const char *str);
  * @return	None
  */
 void Board_LED_Set(uint8_t LEDNumber, bool State);
-
+uint8_t Board_LED_Get(uint8_t LEDNumber);
 /**
  * @brief	Returns the current state of a board LED
  * @param	LEDNumber	: LED number to set state for

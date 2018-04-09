@@ -20,6 +20,7 @@
  *
  * \author    Gregory Cristian ( Semtech )
  */
+#include "lpc824board.h"
 #include "board.h"
 #include "rtc-board.h"
 #include "timer.h"
@@ -417,9 +418,18 @@ static void TimerSetTimeout( TimerEvent_t *obj )
     RtcSetTimeout( obj->Timestamp );
 #endif
 }
-
+extern RINGBUFF_T txring, rxring;
 void TimerLowPowerHandler( void )
 {
+    uint8_t byte;
+    Chip_WWDT_Feed(LPC_WWDT);
+    while(Chip_UART_ReadRB(LPC_USART0, &rxring, &byte, 1) > 0)
+    {
+        Chip_WWDT_Feed(LPC_WWDT);
+        //uartflashtimer = TimerGetCurrentTime();
+        frame_rx(byte);
+    }
+
     if( ( TimerListHead != NULL ) && ( TimerListHead->IsRunning == true ) )
     {
         if( HasLoopedThroughMain < 5 )
@@ -429,9 +439,9 @@ void TimerLowPowerHandler( void )
         else
         {
             HasLoopedThroughMain = 0;
-            if( GetBoardPowerSource( ) == BATTERY_POWER )
+            //if( GetBoardPowerSource( ) == BATTERY_POWER )
             {
-                RtcEnterLowPowerStopMode( );
+                //RtcEnterLowPowerStopMode( );
             }
         }
     }

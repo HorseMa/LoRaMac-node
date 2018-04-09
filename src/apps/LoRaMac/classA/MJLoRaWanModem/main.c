@@ -28,6 +28,7 @@
 #include "lpc824board.h"
 #include "LoRaMac.h"
 #include "Commissioning.h"
+#include "modem.h"
 
 #define ACTIVE_REGION LORAMAC_REGION_CN470
 #ifndef ACTIVE_REGION
@@ -82,7 +83,7 @@
 /*!
  * LoRaWAN application port
  */
-#define LORAWAN_APP_PORT                            2
+#define LORAWAN_APP_PORT                            1
 
 static uint8_t DevEui[] = LORAWAN_DEVICE_EUI;
 static uint8_t AppEui[] = LORAWAN_APPLICATION_EUI;
@@ -124,7 +125,7 @@ static uint8_t AppData[LORAWAN_APP_DATA_MAX_SIZE];
  * Indicates if the node is sending confirmed or unconfirmed messages
  */
 static uint8_t IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
-
+static uint8_t IsLastTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
 /*!
  * Defines the application data transmission duty cycle
  */
@@ -198,8 +199,9 @@ static void PrepareTxFrame( uint8_t port )
 
     switch( port )
     {
-    case 2:
-
+    case 1:
+        AppDataSize = 1;
+        AppData[0] = Board_LED_Get(0);
         break;
     case 224:
         if( ComplianceTest.LinkCheck == true )
@@ -282,10 +284,50 @@ static bool SendFrame( void )
     return true;
 }
 
+bool modemSendFrame(uint8_t port,uint8_t *data,uint8_t len,bool confirm)
+{
+    MibRequestConfirm_t mibReq;
+    LoRaMacStatus_t status;
+
+    TimerStop( &TxNextPacketTimer );
+    mibReq.Type = MIB_NETWORK_JOINED;
+    status = LoRaMacMibGetRequestConfirm( &mibReq );
+
+    if( status == LORAMAC_STATUS_OK )
+    {
+        if( mibReq.Param.IsNetworkJoined == true )
+        {
+            DeviceState = DEVICE_STATE_SEND;
+            NextTx = true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+        return false;
+    }
+    if( NextTx == true )
+    {
+        //PrepareTxFrame( port );
+        IsTxConfirmed = confirm;
+        AppPort = port;
+        AppDataSize = len;
+        memcpy(AppData,data,len);
+        NextTx = SendFrame( );
+    }
+
+    DEBUG_OUTPUT("TxDutyCycleTime = %d\r\n",TxDutyCycleTime);
+    TxDutyCycleTime = randr( 0, 1500 );
+    DeviceState = DEVICE_STATE_CYCLE;
+    return NextTx;
+}
 /*!
  * \brief Function executed on TxNextPacket Timeout event
  */
-static void OnTxNextPacketTimerEvent( void )
+void OnTxNextPacketTimerEvent( void )
 {
     MibRequestConfirm_t mibReq;
     LoRaMacStatus_t status;
@@ -347,12 +389,14 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
         {
             case MCPS_UNCONFIRMED:
             {
+                IsLastTxConfirmed = false;
                 // Check Datarate
                 // Check TxPower
                 break;
             }
             case MCPS_CONFIRMED:
             {
+                IsLastTxConfirmed = true;
                 // Check Datarate
                 // Check TxPower
                 // Check AckReceived
@@ -371,6 +415,15 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
         //GpioWrite( &Led1, 0 );
         //TimerStart( &Led1Timer );
     }
+    else
+    {
+        if(mcpsConfirm->Status == LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT)
+        {
+            LMIC.txrxFlags = 0;
+            LMIC.dataLen = 0;
+            onEvent(EV_TXCOMPLETE);
+        }
+    }
     NextTx = true;
 }
 
@@ -387,8 +440,8 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         if(mcpsIndication->Status == LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS)
         {
             DEBUG_OUTPUT("Reset\r\n");
-            SX1276Reset();
-            DelayMs(7);
+            //SX1276Reset();
+            //DelayMs(7);
             BoardResetMcu();
         }
         return;
@@ -442,11 +495,10 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         switch( mcpsIndication->Port )
         {
         case 1: // The application LED can be controlled on port 1 or 2
-        case 2:
             if( mcpsIndication->BufferSize == 1 )
             {
                 AppLedStateOn = mcpsIndication->Buffer[0] & 0x01;
-                //GpioWrite( &Led3, ( ( AppLedStateOn & 0x01 ) != 0 ) ? 0 : 1 );
+                Board_LED_Set( 0, AppLedStateOn );
             }
             break;
         case 224:
@@ -457,6 +509,18 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         default:
             break;
         }
+        LMIC.txrxFlags = 0;
+        if(IsLastTxConfirmed == true)
+        {
+            LMIC.txrxFlags |= (mcpsIndication->AckReceived ? TXRX_ACK : TXRX_NACK);
+        }
+        mcpsIndication->RxSlot?(LMIC.txrxFlags |= TXRX_DNW2):(LMIC.txrxFlags |= TXRX_DNW1);
+        LMIC.txrxFlags |= TXRX_PORT;
+        LMIC.dataBeg = 1;
+        LMIC.frame[LMIC.dataBeg - 1] = mcpsIndication->Port;
+        LMIC.dataLen = mcpsIndication->BufferSize;
+        memcpy(LMIC.frame + LMIC.dataBeg,mcpsIndication->Buffer,mcpsIndication->BufferSize);
+        onEvent(EV_RXCOMPLETE);
     }
 
     // Switch LED 2 ON for each received downlink
@@ -479,7 +543,16 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
             {
                 // Status is OK, node has joined the network
-                DeviceState = DEVICE_STATE_SEND;
+                if(persist.nodetype == CLASS_A)
+                {
+                    DeviceState = DEVICE_STATE_SLEEP;
+                }
+                else
+                {
+                    DeviceState = DEVICE_STATE_SEND;
+                }
+                onEvent(EV_JOINED);
+                Board_LED_Set(0,0);
             }
             else
             {
@@ -593,19 +666,19 @@ int main( void )
                 LoRaMacMibSetRequestConfirm( &mibReq );
                 
                 mibReq.Type = MIB_DEVICE_CLASS;
-                mibReq.Param.Class = CLASS_C;
+                mibReq.Param.Class = persist.nodetype;;
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
                 static uint16_t ChannelsDefaultMask[6];
                 mibReq.Param.ChannelsMask = ChannelsDefaultMask;
                 mibReq.Type = MIB_CHANNELS_DEFAULT_MASK;
-                ChannelsDefaultMask[0] = 0x0007;
-                ChannelsDefaultMask[1] = 0x0000;
-                ChannelsDefaultMask[2] = 0x0000;
-                ChannelsDefaultMask[3] = 0x0000;
-                ChannelsDefaultMask[4] = 0x0000;
-                ChannelsDefaultMask[5] = 0x0000;
-                
+                memset(ChannelsDefaultMask,0,sizeof(ChannelsDefaultMask));
+                for(int loop = 0;loop < persist.channeltoenable;loop++)
+                {
+                    ChannelsDefaultMask[(persist.startchannelid + loop) / 16] |= (1 << ((persist.startchannelid + loop) % 16));
+                }
+                LoRaMacMibSetRequestConfirm( &mibReq );
+                mibReq.Type = MIB_CHANNELS_MASK;
                 LoRaMacMibSetRequestConfirm( &mibReq );
                 
 #if defined( REGION_EU868 )
@@ -616,75 +689,80 @@ int main( void )
             }
             case DEVICE_STATE_JOIN:
             {
-#if( OVER_THE_AIR_ACTIVATION != 0 )
-                MlmeReq_t mlmeReq;
-                LoRaMacStatus_t status;
-                // Initialize LoRaMac device unique ID
-                BoardGetUniqueId( DevEui );
-
-                mlmeReq.Type = MLME_JOIN;
-                                
-                mlmeReq.Req.Join.DevEui = DevEui;
-                mlmeReq.Req.Join.AppEui = AppEui;
-                mlmeReq.Req.Join.AppKey = AppKey;
-                mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
-                status = LoRaMacMibGetRequestConfirm( &mibReq );
-                if( status == LORAMAC_STATUS_OK )
+                if( persist.flags & FLAGS_JOINPAR )
                 {
-                    mlmeReq.Req.Join.Datarate = mibReq.Param.ChannelsDefaultDatarate;
+                    MlmeReq_t mlmeReq;
+                    LoRaMacStatus_t status;
+                    // Initialize LoRaMac device unique ID
+                    BoardGetUniqueId( DevEui );
+
+                    mlmeReq.Type = MLME_JOIN;
+                                    
+                    mlmeReq.Req.Join.DevEui = persist.joinpar.deveui;
+                    mlmeReq.Req.Join.AppEui = persist.joinpar.appeui;
+                    mlmeReq.Req.Join.AppKey = persist.joinpar.devkey;
+                    mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
+                    status = LoRaMacMibGetRequestConfirm( &mibReq );
+                    if( status == LORAMAC_STATUS_OK )
+                    {
+                        mlmeReq.Req.Join.Datarate = mibReq.Param.ChannelsDefaultDatarate;
+                    }
+                    else
+                    {
+                        mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
+                    }
+
+                    if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
+                    {
+                        onEvent(EV_JOINING);
+                        DeviceState = DEVICE_STATE_SLEEP;
+                    }
+                    else
+                    {
+                        DeviceState = DEVICE_STATE_CYCLE;
+                    }
                 }
                 else
                 {
-                    mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
+                    // Choose a random device address if not already defined in Commissioning.h
+                    /*if( DevAddr == 0 )
+                    {
+                        // Random seed initialization
+                        //srand1( BoardGetRandomSeed( ) );
+
+                        // Choose a random device address
+                        DevAddr = randr( 0, 0x01FFFFFF );
+                    }*/
+
+                    mibReq.Type = MIB_NET_ID;
+                    mibReq.Param.NetID = persist.sesspar.netid;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+
+                    mibReq.Type = MIB_DEV_ADDR;
+                    mibReq.Param.DevAddr = persist.sesspar.devaddr;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+
+                    mibReq.Type = MIB_NWK_SKEY;
+                    mibReq.Param.NwkSKey = persist.sesspar.nwkkey;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+
+                    mibReq.Type = MIB_APP_SKEY;
+                    mibReq.Param.AppSKey = persist.sesspar.artkey;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+
+                    mibReq.Type = MIB_NETWORK_JOINED;
+                    mibReq.Param.IsNetworkJoined = true;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+                    DeviceState = DEVICE_STATE_SEND;
                 }
-
-                if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
-                {
-                    DeviceState = DEVICE_STATE_SLEEP;
-                }
-                else
-                {
-                    DeviceState = DEVICE_STATE_CYCLE;
-                }
-#else
-                // Choose a random device address if not already defined in Commissioning.h
-                if( DevAddr == 0 )
-                {
-                    // Random seed initialization
-                    //srand1( BoardGetRandomSeed( ) );
-
-                    // Choose a random device address
-                    DevAddr = randr( 0, 0x01FFFFFF );
-                }
-
-                mibReq.Type = MIB_NET_ID;
-                mibReq.Param.NetID = LORAWAN_NETWORK_ID;
-                LoRaMacMibSetRequestConfirm( &mibReq );
-
-                mibReq.Type = MIB_DEV_ADDR;
-                mibReq.Param.DevAddr = DevAddr;
-                LoRaMacMibSetRequestConfirm( &mibReq );
-
-                mibReq.Type = MIB_NWK_SKEY;
-                mibReq.Param.NwkSKey = NwkSKey;
-                LoRaMacMibSetRequestConfirm( &mibReq );
-
-                mibReq.Type = MIB_APP_SKEY;
-                mibReq.Param.AppSKey = AppSKey;
-                LoRaMacMibSetRequestConfirm( &mibReq );
-
-                mibReq.Type = MIB_NETWORK_JOINED;
-                mibReq.Param.IsNetworkJoined = true;
-                LoRaMacMibSetRequestConfirm( &mibReq );
-
-                DeviceState = DEVICE_STATE_SEND;
-#endif
                 break;
             }
             case DEVICE_STATE_SEND:
             {
                 if( NextTx == true )
                 {
+                    AppPort = LORAWAN_APP_PORT;
+                    IsTxConfirmed = true;
                     PrepareTxFrame( AppPort );
 
                     NextTx = SendFrame( );
@@ -697,7 +775,7 @@ int main( void )
                 else
                 {
                     // Schedule next packet transmission
-                    TxDutyCycleTime = randr( 0, 1500 );
+                    TxDutyCycleTime = persist.sesspar.alarm * 1000;
                 }
                 DEBUG_OUTPUT("TxDutyCycleTime = %d\r\n",TxDutyCycleTime);
                 DeviceState = DEVICE_STATE_CYCLE;
@@ -716,7 +794,7 @@ int main( void )
             case DEVICE_STATE_SLEEP:
             {
                 // Wake up through events
-                //TimerLowPowerHandler( );
+                TimerLowPowerHandler( );
                 break;
             }
             default:

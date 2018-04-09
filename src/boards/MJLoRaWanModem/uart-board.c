@@ -60,7 +60,7 @@ RINGBUFF_T txring, rxring;
 #define PUTCHAR_PROTOTYPE int putchar(int ch)
 
 /* Transmit and receive buffers */
-static uint8_t rxbuff[UART_RB_SIZE], txbuff[UART_RB_SIZE];
+uint8_t rxbuff[UART_RB_SIZE], txbuff[UART_RB_SIZE];
 
 /*!
  * Number of times the UartPutBuffer will try to send the buffer before

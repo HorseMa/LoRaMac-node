@@ -32,6 +32,7 @@
 #endif
 #include "board.h"
 #include "timer.h"
+#include "modem.h"
 /*!
  * Unique Devices IDs register set ( STM32L1xxx )
  */
@@ -66,6 +67,7 @@ void BoardInitMcu( void )
     SystemCoreClockUpdate();
     Board_Init();
     UartMcuInit(NULL,0,PA_1,PA_1);
+    modem_init();
     Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_SYS);
     SysTick_Config(SystemCoreClock / 1000);
     SpiInit(NULL,SPI_1,PA_1,PA_1,PA_0,PA_0);

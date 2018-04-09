@@ -33,7 +33,7 @@
 #include "LoRaMacCrypto.h"
 #include "LoRaMacTest.h"
 #include "debug.h"
-
+#include "modem.h"
 /*!
  * Maximum PHY layer payload size
  */
@@ -818,6 +818,16 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                 LoRaMacDevAddr |= ( ( uint32_t )LoRaMacRxPayload[8] << 8 );
                 LoRaMacDevAddr |= ( ( uint32_t )LoRaMacRxPayload[9] << 16 );
                 LoRaMacDevAddr |= ( ( uint32_t )LoRaMacRxPayload[10] << 24 );
+
+                memcpy(persist.sesspar.artkey,LoRaMacAppSKey,16);
+                memcpy(persist.sesspar.nwkkey,LoRaMacNwkSKey,16);
+                persist.sesspar.devaddr = LoRaMacDevAddr;
+                persist.sesspar.netid = LoRaMacNetID;
+                //persist.sesspar.JoinRequestTrials = JoinRequestTrials;
+                persist.flags &= ~FLAGS_JOINPAR;
+                persist.flags |= FLAGS_SESSPAR;
+                //caculateDr(snr);
+                eeprom_write();
 
                 // DLSettings
                 LoRaMacParams.Rx1DrOffset = ( LoRaMacRxPayload[11] >> 4 ) & 0x07;
