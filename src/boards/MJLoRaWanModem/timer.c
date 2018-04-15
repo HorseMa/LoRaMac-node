@@ -24,6 +24,8 @@
 #include "board.h"
 #include "rtc-board.h"
 #include "timer.h"
+#include "modem.h"
+#include "LoRaMac.h"
 
 /*!
  * This flag is used to loop through the main several times in order to be sure
@@ -422,15 +424,71 @@ extern RINGBUFF_T txring, rxring;
 void TimerLowPowerHandler( void )
 {
     uint8_t byte;
+    TimerTime_t uartflashtimer;
+    TimerTime_t macflashtimer;
     Chip_WWDT_Feed(LPC_WWDT);
     while(Chip_UART_ReadRB(LPC_USART0, &rxring, &byte, 1) > 0)
     {
         Chip_WWDT_Feed(LPC_WWDT);
-        //uartflashtimer = TimerGetCurrentTime();
         frame_rx(byte);
     }
+    if(persist.nodetype == CLASS_C)
+    {
+        return;
+    }
+    if((!RingBuffer_IsEmpty(&txring)) || (!RingBuffer_IsEmpty(&rxring)))
+    {
+        uartflashtimer = TimerGetCurrentTime();
+    }
+    extern TimerEvent_t TxDelayedTimer;
+    extern TimerEvent_t RxWindowTimer1;
+    extern TimerEvent_t RxWindowTimer2;
 
-    if( ( TimerListHead != NULL ) && ( TimerListHead->IsRunning == true ) )
+    if(( RxWindowTimer1.IsRunning == true ) && ( RxWindowTimer2.IsRunning == true ) && ( TxDelayedTimer.IsRunning == true ) && ( Radio.GetStatus() == RF_RX_RUNNING ))
+    {
+        return;
+    }
+    extern uint32_t LoRaMacState;
+    if(LoRaMacState != 0)
+    {
+        macflashtimer = TimerGetCurrentTime();
+    }
+    
+    if((TimerGetElapsedTime(uartflashtimer) > 50) && (TimerGetElapsedTime(macflashtimer) > 10))
+    {
+        extern uint32_t UpLinkCounter;
+        if((UpLinkCounter == 0) && ( persist.flags & FLAGS_SESSPAR ))
+        {
+            extern enum eDeviceState
+            {
+                DEVICE_STATE_INIT,
+                DEVICE_STATE_JOIN,
+                DEVICE_STATE_SEND,
+                DEVICE_STATE_CYCLE,
+                DEVICE_STATE_SLEEP
+            }DeviceState;
+
+            DeviceState = DEVICE_STATE_SEND;
+            return;
+        }
+        
+        //NVIC_DisableIRQ(PININT0_IRQn);
+        //NVIC_DisableIRQ(PININT1_IRQn);
+        //Radio.Sleep( );
+        //if( persist.flags & FLAGS_JOINPAR )
+        {
+        //    Chip_PMU_ClearPowerDownControl(LPC_PMU, PMU_DPDCTRL_LPOSCEN | PMU_DPDCTRL_LPOSCDPDEN);
+        }
+        //else
+        {
+            Chip_PMU_SetPowerDownControl(LPC_PMU, PMU_DPDCTRL_LPOSCEN | PMU_DPDCTRL_LPOSCDPDEN);
+        }
+        DelayMs(2);
+        Chip_PMU_SetPowerDownControl(LPC_PMU, PMU_DPDCTRL_WAKEUPPHYS);
+        WakeupTest(WKT_CLKSRC_10KHZ,persist.sesspar.alarm,PMU_MCU_DEEP_PWRDOWN);
+        //WakeupTest(WKT_CLKSRC_10KHZ,persist.sesspar.alarm,PMU_MCU_SLEEP);
+    }
+    /*if( ( TimerListHead != NULL ) && ( TimerListHead->IsRunning == true ) )
     {
         if( HasLoopedThroughMain < 5 )
         {
@@ -444,7 +502,7 @@ void TimerLowPowerHandler( void )
                 //RtcEnterLowPowerStopMode( );
             }
         }
-    }
+    }*/
 }
 
 void TimerProcess( void )

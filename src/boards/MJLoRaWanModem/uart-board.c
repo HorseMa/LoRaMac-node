@@ -76,6 +76,9 @@ void UartMcuInit( Uart_t *obj, UartId_t uartId, PinNames tx, PinNames rx )
     Chip_Clock_SetUARTClockDiv(UART_CLOCK_DIV);
 
     /* Connect the U0_TXD_O and U0_RXD_I signals to port pins(P0.4, P0.0) */
+    
+    //Chip_IOCON_PinEnableOpenDrainMode(LPC_IOCON,IOCON_PIO0);
+    //Chip_IOCON_PinEnableOpenDrainMode(LPC_IOCON,IOCON_PIO4);
     Chip_SWM_DisableFixedPin(SWM_FIXED_ACMP_I1);
     Chip_SWM_MovablePinAssign(SWM_U0_TXD_O, 0);
     Chip_SWM_MovablePinAssign(SWM_U0_RXD_I, 4);
@@ -85,17 +88,16 @@ void UartMcuInit( Uart_t *obj, UartId_t uartId, PinNames tx, PinNames rx )
     Chip_UART_ConfigData(LPC_USART, UART_CFG_DATALEN_8 | UART_CFG_PARITY_NONE | UART_CFG_STOPLEN_1);
     Chip_Clock_SetUSARTNBaseClockRate((115200 * 16), true);
     Chip_UART_SetBaud(LPC_USART, UART_TEST_DEFAULT_BAUDRATE);
-    Chip_UART_Enable(LPC_USART);
-    Chip_UART_TXEnable(LPC_USART);
-
     /* Before using the ring buffers, initialize them using the ring
     buffer init function */
     RingBuffer_Init(&rxring, rxbuff, 1, UART_RB_SIZE);
     RingBuffer_Init(&txring, txbuff, 1, UART_RB_SIZE);
-
+    Chip_UART_ClearStatus(DEBUG_UART,UART_STAT_RXRDY | UART_INTEN_TXRDY | UART_INTEN_TXIDLE);
     /* Enable receive data and line status interrupt */
     Chip_UART_IntEnable(LPC_USART, UART_INTEN_RXRDY);
     Chip_UART_IntDisable(LPC_USART, UART_INTEN_TXRDY);	/* May not be needed */
+    Chip_UART_Enable(LPC_USART);
+    Chip_UART_TXEnable(LPC_USART);
 
     /* preemption = 1, sub-priority = 1 */
     NVIC_EnableIRQ(LPC_IRQNUM);

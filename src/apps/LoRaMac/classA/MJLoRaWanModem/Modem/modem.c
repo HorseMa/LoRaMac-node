@@ -662,7 +662,7 @@ static void persist_init (uint8_t factory) {
         persist.eventmask = ~0;
         persist.startchannelid = 0;
         persist.channeltoenable = 3;
-        persist.nodetype = CLASS_C;
+        persist.nodetype = CLASS_A;
         eeprom_write();
     }
     else

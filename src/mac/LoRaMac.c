@@ -162,7 +162,7 @@ static uint8_t LoRaMacRxPayload[LORAMAC_PHY_MAXPAYLOAD];
  * LoRaMAC frame counter. Each time a packet is sent the counter is incremented.
  * Only the 16 LSB bits are sent
  */
-static uint32_t UpLinkCounter = 0;
+uint32_t UpLinkCounter = 0;
 
 /*!
  * LoRaMAC frame counter. Each time a packet is received the counter is incremented.
@@ -331,13 +331,13 @@ static RadioEvents_t RadioEvents;
 /*!
  * LoRaMac duty cycle delayed Tx timer
  */
-static TimerEvent_t TxDelayedTimer;
+TimerEvent_t TxDelayedTimer;
 
 /*!
  * LoRaMac reception windows timers
  */
-static TimerEvent_t RxWindowTimer1;
-static TimerEvent_t RxWindowTimer2;
+TimerEvent_t RxWindowTimer1;
+TimerEvent_t RxWindowTimer2;
 
 /*!
  * LoRaMac reception windows delay
@@ -826,7 +826,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                 //persist.sesspar.JoinRequestTrials = JoinRequestTrials;
                 persist.flags &= ~FLAGS_JOINPAR;
                 persist.flags |= FLAGS_SESSPAR;
-                //caculateDr(snr);
+                caculateDr(snr);
                 eeprom_write();
 
                 // DLSettings
@@ -968,6 +968,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
 
                 if( isMicOk == true )
                 {
+                    caculateDr(snr);
                     McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_OK;
                     McpsIndication.Multicast = multicast;
                     McpsIndication.FramePending = fCtrl.Bits.FPending;
@@ -3293,6 +3294,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             status = Send( &macHdr, 0, NULL, 0 );
             break;
         }
+#if 0
         case MLME_LINK_CHECK:
         {
             LoRaMacFlags.Bits.MlmeReq = 1;
@@ -3316,6 +3318,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             status = SetTxContinuousWave1( mlmeRequest->Req.TxCw.Timeout, mlmeRequest->Req.TxCw.Frequency, mlmeRequest->Req.TxCw.Power );
             break;
         }
+#endif
         default:
             break;
     }

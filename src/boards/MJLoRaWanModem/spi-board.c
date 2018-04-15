@@ -41,13 +41,13 @@ void SpiInit( Spi_t *obj, SpiId_t spiId, PinNames mosi, PinNames miso, PinNames 
     Chip_SWM_MovablePinAssign(SWM_SPI1_SSEL0_IO, 14);
     Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 0, 14);
     //Chip_IOCON_PinSetMode(LPC_IOCON,IOCON_PIO25,PIN_MODE_REPEATER);
-    Chip_IOCON_PinDisableOpenDrainMode(LPC_IOCON,IOCON_PIO25);
+    //Chip_IOCON_PinDisableOpenDrainMode(LPC_IOCON,IOCON_PIO25);
     Chip_SWM_MovablePinAssign(SWM_SPI1_SCK_IO, 25);
     //Chip_IOCON_PinSetMode(LPC_IOCON,IOCON_PIO7,PIN_MODE_REPEATER);
     //Chip_IOCON_PinDisableOpenDrainMode(LPC_IOCON,IOCON_PIO7);
     Chip_SWM_MovablePinAssign(SWM_SPI1_MISO_IO, 7);
     //Chip_IOCON_PinSetMode(LPC_IOCON,IOCON_PIO6,PIN_MODE_REPEATER);
-    Chip_IOCON_PinDisableOpenDrainMode(LPC_IOCON,IOCON_PIO6);
+    //Chip_IOCON_PinDisableOpenDrainMode(LPC_IOCON,IOCON_PIO6);
     Chip_SWM_MovablePinAssign(SWM_SPI1_MOSI_IO, 6);
     Chip_Clock_DisablePeriphClock(SYSCTL_CLOCK_SWM);
     /*

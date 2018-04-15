@@ -32,6 +32,7 @@
 
 #include "RegionCommon.h"
 #include "RegionCN470.h"
+#include "modem.h"
 
 // Definitions
 #define CHANNELS_MASK_SIZE              6
@@ -359,8 +360,38 @@ void RegionCN470ApplyCFList( ApplyCFListParams_t* applyCFList )
     return;
 }
 
+extern uint8_t enableChannelsDRnum;
+extern uint8_t enableChannelDR[];
+
+void caculateDr(int8_t snr)
+{
+    uint8_t loop;
+    static int8_t DRsSnrTbl[6] = {-17,-14,-11,-8,-5,-2};
+    uint32_t trials = 0;
+      
+    for(loop = 0; loop < enableChannelsDRnum; loop ++)
+    {
+        if(snr < DRsSnrTbl[enableChannelDR[loop]])
+        {
+            break;
+        }
+    }
+    if(loop > 0)
+    {
+        loop --;
+    }
+    trials = enableChannelDR[loop];
+    if(trials != persist.sesspar.JoinRequestTrials)
+    {
+        persist.sesspar.JoinRequestTrials = trials;
+        eeprom_write();
+    }
+}
+
 bool RegionCN470ChanMaskSet( ChanMaskSetParams_t* chanMaskSet )
 {
+    uint8_t swap;
+    uint8_t tempDR[6] = {0};
     switch( chanMaskSet->ChannelsMaskType )
     {
         case CHANNELS_MASK:
@@ -370,12 +401,22 @@ bool RegionCN470ChanMaskSet( ChanMaskSetParams_t* chanMaskSet )
         }
         case CHANNELS_DEFAULT_MASK:
         {
+            enableChannelsDRnum = 0;
             RegionCommonChanMaskCopy( ChannelsDefaultMask, chanMaskSet->ChannelsMaskIn, 6 );
             for( uint8_t i = 0; i < CN470_MAX_NB_CHANNELS; i++ )
             {
                 if(ChannelsDefaultMask[i / 16] & (1 << (i % 16)))
                 {
                     Channels[i].DrRange.Value = ( (i % 6) << 4 ) | (i % 6);
+                    tempDR[(i % 6)] = 1;
+                }
+            }
+            for (uint8_t i = 0; i < 6; i++)
+            {
+                if(tempDR[i])
+                {
+                    enableChannelDR[enableChannelsDRnum] = i;
+                    enableChannelsDRnum ++;
                 }
             }
             break;

@@ -141,6 +141,8 @@ static TimerEvent_t TxNextPacketTimer;
  */
 static bool AppLedStateOn = false;
 
+uint8_t enableChannelsDRnum = 0;
+uint8_t enableChannelDR[6] = {0};
 /*!
  * Timer to handle the state of LED1
  */
@@ -164,7 +166,7 @@ static bool NextTx = true;
 /*!
  * Device states
  */
-static enum eDeviceState
+enum eDeviceState
 {
     DEVICE_STATE_INIT,
     DEVICE_STATE_JOIN,
@@ -242,11 +244,6 @@ static bool SendFrame( void )
 {
     McpsReq_t mcpsReq;
     LoRaMacTxInfo_t txInfo;
-
-    MibRequestConfirm_t mibReq;
-    
-    mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
-    LoRaMacMibGetRequestConfirm( &mibReq );
     
     if( LoRaMacQueryTxPossible( AppDataSize, &txInfo ) != LORAMAC_STATUS_OK )
     {
@@ -254,7 +251,7 @@ static bool SendFrame( void )
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fBuffer = NULL;
         mcpsReq.Req.Unconfirmed.fBufferSize = 0;
-        mcpsReq.Req.Unconfirmed.Datarate = mibReq.Param.ChannelsDefaultDatarate;
+        mcpsReq.Req.Unconfirmed.Datarate = persist.sesspar.JoinRequestTrials;
     }
     else
     {
@@ -264,7 +261,7 @@ static bool SendFrame( void )
             mcpsReq.Req.Unconfirmed.fPort = AppPort;
             mcpsReq.Req.Unconfirmed.fBuffer = AppData;
             mcpsReq.Req.Unconfirmed.fBufferSize = AppDataSize;
-            mcpsReq.Req.Unconfirmed.Datarate = mibReq.Param.ChannelsDefaultDatarate;
+            mcpsReq.Req.Unconfirmed.Datarate = persist.sesspar.JoinRequestTrials;
         }
         else
         {
@@ -273,7 +270,7 @@ static bool SendFrame( void )
             mcpsReq.Req.Confirmed.fBuffer = AppData;
             mcpsReq.Req.Confirmed.fBufferSize = AppDataSize;
             mcpsReq.Req.Confirmed.NbTrials = 8;
-            mcpsReq.Req.Confirmed.Datarate = mibReq.Param.ChannelsDefaultDatarate;
+            mcpsReq.Req.Confirmed.Datarate = persist.sesspar.JoinRequestTrials;
         }
     }
 
@@ -442,6 +439,9 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
             DEBUG_OUTPUT("Reset\r\n");
             //SX1276Reset();
             //DelayMs(7);
+            persist.flags &= ~FLAGS_SESSPAR;
+            persist.flags |= FLAGS_JOINPAR;
+            eeprom_write();
             BoardResetMcu();
         }
         return;
@@ -628,7 +628,8 @@ int main( void )
 
     DEBUG_OUTPUT("Power on\r\n");
     DeviceState = DEVICE_STATE_INIT;
-
+    modem_wkt_init();
+    //modem_wwdt_init();
     while( 1 )
     {
         switch( DeviceState )
@@ -662,7 +663,7 @@ int main( void )
                 LoRaMacMibSetRequestConfirm( &mibReq );
                 
                 mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
-                mibReq.Param.ChannelsDefaultDatarate = DR_2;
+                mibReq.Param.ChannelsDefaultDatarate = enableChannelDR[0];
                 LoRaMacMibSetRequestConfirm( &mibReq );
                 
                 mibReq.Type = MIB_DEVICE_CLASS;
@@ -753,6 +754,11 @@ int main( void )
                     mibReq.Type = MIB_NETWORK_JOINED;
                     mibReq.Param.IsNetworkJoined = true;
                     LoRaMacMibSetRequestConfirm( &mibReq );
+                    
+                    mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
+                    mibReq.Param.ChannelsDefaultDatarate = persist.sesspar.JoinRequestTrials;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+                
                     DeviceState = DEVICE_STATE_SEND;
                 }
                 break;
