@@ -432,6 +432,20 @@ void TimerLowPowerHandler( void )
         Chip_WWDT_Feed(LPC_WWDT);
         frame_rx(byte);
     }
+    extern bool bitNeedAck;
+    extern TimerTime_t bitNeedAckTimer;
+    if(bitNeedAck)
+    {
+        if(TimerGetElapsedTime(bitNeedAckTimer) > 200)
+        {
+            extern void OnTxNextPacketTimerEvent( void );
+            OnTxNextPacketTimerEvent( );
+        }
+        else
+        {
+            return;
+        }
+    }
     if(persist.nodetype == CLASS_C)
     {
         return;
@@ -459,7 +473,9 @@ void TimerLowPowerHandler( void )
         extern uint32_t UpLinkCounter;
         if((UpLinkCounter == 0) && ( persist.flags & FLAGS_SESSPAR ))
         {
-            extern enum eDeviceState
+            extern void OnTxNextPacketTimerEvent( void );
+            OnTxNextPacketTimerEvent( );
+            /*extern enum eDeviceState
             {
                 DEVICE_STATE_INIT,
                 DEVICE_STATE_JOIN,
@@ -468,10 +484,9 @@ void TimerLowPowerHandler( void )
                 DEVICE_STATE_SLEEP
             }DeviceState;
 
-            DeviceState = DEVICE_STATE_SEND;
+            DeviceState = DEVICE_STATE_SEND;*/
             return;
         }
-        
         //NVIC_DisableIRQ(PININT0_IRQn);
         //NVIC_DisableIRQ(PININT1_IRQn);
         //Radio.Sleep( );
@@ -485,7 +500,14 @@ void TimerLowPowerHandler( void )
         }
         DelayMs(2);
         Chip_PMU_SetPowerDownControl(LPC_PMU, PMU_DPDCTRL_WAKEUPPHYS);
-        WakeupTest(WKT_CLKSRC_10KHZ,persist.sesspar.alarm,PMU_MCU_DEEP_PWRDOWN);
+        if( persist.flags & FLAGS_JOINPAR )
+        {
+            WakeupTest(WKT_CLKSRC_10KHZ,6,PMU_MCU_DEEP_PWRDOWN);
+        }
+        else
+        {
+            WakeupTest(WKT_CLKSRC_10KHZ,persist.sesspar.alarm,PMU_MCU_DEEP_PWRDOWN);
+        }
         //WakeupTest(WKT_CLKSRC_10KHZ,persist.sesspar.alarm,PMU_MCU_SLEEP);
     }
     /*if( ( TimerListHead != NULL ) && ( TimerListHead->IsRunning == true ) )

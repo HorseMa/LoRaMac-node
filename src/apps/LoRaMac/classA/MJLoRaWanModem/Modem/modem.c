@@ -526,7 +526,7 @@ static void modem_starttx () {
 // LRSC MAC event handler
 // encode and queue event for output
 void onEvent (ev_t ev) {
-    static uint8_t buf[64];
+    static uint8_t buf[300];
   /*
     // update sequence counters for session
     if(PERSIST->flags & FLAGS_SESSPAR) {
@@ -593,7 +593,9 @@ void onEvent (ev_t ev) {
     }
     buf[len++] = '\r';
     buf[len++] = '\n';
+    BoardDisableIrq( );
     Chip_UART_SendRB(LPC_USART0, &txring, buf, len);
+    BoardEnableIrq( );
     //buffer_free(buf,len);
     //queue_add(buf, len);
     //modem_starttx();
@@ -683,7 +685,7 @@ void modem_init () {
 void modem_rxdone () {
     uint8_t ok = 0;
     uint8_t cmd = tolower(MODEM.cmdbuf[0]);
-    uint8_t len = rxframe.len;
+    uint16_t len = rxframe.len;
     uint8_t* rspbuf = MODEM.cmdbuf;
     uint8_t rst = false;
     if(len == 0) { // AT
@@ -747,6 +749,7 @@ void modem_rxdone () {
         ok = 1;
     } else if(MODEM.cmdbuf[1] == '=' && len == 2+8+1+8+1+32+1+32) { // ATS= set (netid,devaddr,nwkkey,artkey)
         sessparam_t par;
+        memcpy(&par,&persist.sesspar,sizeof(par));
         if( hex2int(&par.netid, MODEM.cmdbuf+2, 8) &&
         MODEM.cmdbuf[2+8] == ',' &&
         hex2int(&par.devaddr, MODEM.cmdbuf+2+8+1, 8) &&
@@ -760,16 +763,15 @@ void modem_rxdone () {
             // switch on LED
             //leds_set(LED_SESSION, 1);
             // save parameters
-            par.alarm = persist.sesspar.alarm;
-            par.JoinRequestTrials = persist.sesspar.JoinRequestTrials;
             memcpy(&persist.sesspar,&par,sizeof(par));
-            persist.seqnoUp = LMIC.seqnoUp;
-            persist.seqnoDn = LMIC.seqnoDn;
+            //persist.seqnoUp = LMIC.seqnoUp;
+            //persist.seqnoDn = LMIC.seqnoDn;
             persist.flags &= ~FLAGS_JOINPAR;
             persist.flags |= FLAGS_SESSPAR;
             
             eeprom_write();
             ok = 1;
+            rst = 1;
         }
     }
     }else if(cmd == 'j' && len >= 2) { // JOIN parameters
@@ -782,15 +784,13 @@ void modem_rxdone () {
         reverse(tmp, persist.joinpar.appeui, 8);
         rspbuf += puthex(rspbuf, tmp, 8);
         ok = 1;
-    } else if(MODEM.cmdbuf[1] == '=' && len == 2+16+1+16+1+32) { // ATJ= set (deveui,appeui,devkey)
+    } else if(MODEM.cmdbuf[1] == '=' && len == 2+16+1+32) { // ATJ= set (deveui,appeui,devkey)
         joinparam_t par;
-        par.isPublic = false;
-        if( gethex(par.deveui, MODEM.cmdbuf+2,           16) == 8 &&
+        memcpy(&par,&persist.joinpar,sizeof(par));
+        if( gethex(par.appeui, MODEM.cmdbuf+2,      16) == 8 &&
         MODEM.cmdbuf[2+16] == ',' &&
-        gethex(par.appeui, MODEM.cmdbuf+2+16+1,      16) == 8 &&
-        MODEM.cmdbuf[2+16+1+16] == ',' &&
-        gethex(par.devkey, MODEM.cmdbuf+2+16+1+16+1, 32) == 16 ) {
-            reverse(par.deveui, par.deveui, 8);
+        gethex(par.devkey, MODEM.cmdbuf+2+16+1, 32) == 16 ) {
+            //reverse(par.deveui, par.deveui, 8);
             reverse(par.appeui, par.appeui, 8);
             
             memcpy(&persist.joinpar,&par,sizeof(par));
@@ -798,6 +798,7 @@ void modem_rxdone () {
             persist.flags &= ~FLAGS_SESSPAR;
             eeprom_write();
             ok = 1;
+            rst = 1;
         }
     }
     }
@@ -828,14 +829,16 @@ void modem_rxdone () {
             //DeviceState = DEVICE_STATE_INIT;
             eeprom_write();
             ok = 1;
+            rst = 1;
         }
     }
     } else if(cmd == 'j' && len == 1) { // ATJ join network
-    if(persist.flags & FLAGS_JOINPAR) {
-        //LMIC_reset(); // force join
-        //LMIC_startJoining();
-    }
-    ok = 1;
+        persist.flags |= FLAGS_JOINPAR;
+        persist.flags &= ~FLAGS_SESSPAR;
+            
+        eeprom_write();
+        ok = 1;
+        rst = 1;
     } /*else if(cmd == 't' && len >= 1) { // ATT transmit
     if(len == 1) { // no conf, no port, no data
         if(LMIC.devaddr || (PERSIST->flags & FLAGS_JOINPAR)) { // implicitely join!
@@ -852,22 +855,15 @@ void modem_rxdone () {
         }
         if(persist.flags & FLAGS_SESSPAR)
         {
-            if(len == 5 || LMIC.pendTxLen) {
+            if(len == 5 || LMIC.pendTxLen <= 51) {
                 //if(LMIC.devaddr || (PERSIST->flags & FLAGS_JOINPAR)) { // implicitely join!
                 //LMIC_setTxData();
-                if((LMIC.pendTxPort == 0) || (LMIC.pendTxPort > 223)){
-                ok = 0;
-                }
-                else{
+                if((LMIC.pendTxPort > 0) && (LMIC.pendTxPort < 224)){
                     //IsTxConfirmed = LMIC.pendTxConf;
                     //PrepareTxFrame( LMIC.pendTxPort ,LMIC.pendTxData ,LMIC.pendTxLen);
-                    ok = modemSendFrame(LMIC.pendTxPort,LMIC.pendTxData,LMIC.pendTxLen,LMIC.pendTxConf);
+                    ok = 1;//modemSendFrame(LMIC.pendTxPort,LMIC.pendTxData,LMIC.pendTxLen,LMIC.pendTxConf);
                 }
             }
-        }
-        else
-        {
-            ok = 0;
         }
         }
     } /*else if(cmd == 'p' && len == 2) { // ATP set ping mode
@@ -908,7 +904,13 @@ void modem_rxdone () {
     *rspbuf++ = '\r';
     *rspbuf++ = '\n';
     MODEM.rsplen = rspbuf - MODEM.cmdbuf;
+    BoardDisableIrq( );
     Chip_UART_SendRB(LPC_USART0, &txring, MODEM.cmdbuf, MODEM.rsplen);
+    BoardEnableIrq( );
+    if((ok) && (cmd == 't'))
+    {
+        modemSendFrame(LMIC.pendTxPort,LMIC.pendTxData,LMIC.pendTxLen,LMIC.pendTxConf);
+    }
     if(rst == true)
     {
         DelayMs(4);

@@ -843,11 +843,11 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                 LoRaMacParams.ReceiveDelay2 = LoRaMacParams.ReceiveDelay1 + 1000;
 
                 // Apply CF list
-                applyCFList.Payload = &LoRaMacRxPayload[13];
+                /*applyCFList.Payload = &LoRaMacRxPayload[13];
                 // Size of the regular payload is 12. Plus 1 byte MHDR and 4 bytes MIC
                 applyCFList.Size = size - 17;
 
-                RegionApplyCFList( LoRaMacRegion, &applyCFList );
+                RegionApplyCFList( LoRaMacRegion, &applyCFList );*/
 
                 MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
                 IsLoRaMacNetworkJoined = true;
@@ -890,7 +890,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
 
                 if( address != LoRaMacDevAddr )
                 {
-                    curMulticastParams = MulticastChannels;
+                    /*curMulticastParams = MulticastChannels;
                     while( curMulticastParams != NULL )
                     {
                         if( address == curMulticastParams->Address )
@@ -902,7 +902,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                             break;
                         }
                         curMulticastParams = curMulticastParams->Next;
-                    }
+                    }*/
                     if( multicast == 0 )
                     {
                         // We are not the destination of this frame.
@@ -1444,10 +1444,10 @@ static void OnMacStateCheckTimerEvent( void )
         }
 
         // Verify if sticky MAC commands are pending or not
-        if( IsStickyMacCommandPending( ) == true )
+        /*if( IsStickyMacCommandPending( ) == true )
         {// Setup MLME indication
             SetMlmeScheduleUplinkIndication( );
-        }
+        }*/
 
         // Procedure done. Reset variables.
         LoRaMacFlags.Bits.MacDone = 0;
@@ -2305,7 +2305,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
             }
             MacCommandsInNextTx = false;
             // Store MAC commands which must be re-send in case the device does not receive a downlink anymore
-            MacCommandsBufferToRepeatIndex = ParseMacCommandsToRepeat( MacCommandsBuffer, MacCommandsBufferIndex, MacCommandsBufferToRepeat );
+            //MacCommandsBufferToRepeatIndex = ParseMacCommandsToRepeat( MacCommandsBuffer, MacCommandsBufferIndex, MacCommandsBufferToRepeat );
             if( MacCommandsBufferToRepeatIndex > 0 )
             {
                 MacCommandsInNextTx = true;

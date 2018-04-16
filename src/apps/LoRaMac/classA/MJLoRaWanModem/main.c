@@ -126,6 +126,8 @@ static uint8_t AppData[LORAWAN_APP_DATA_MAX_SIZE];
  */
 static uint8_t IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
 static uint8_t IsLastTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
+bool bitNeedAck = false;
+TimerTime_t bitNeedAckTimer = 0;
 /*!
  * Defines the application data transmission duty cycle
  */
@@ -269,7 +271,7 @@ static bool SendFrame( void )
             mcpsReq.Req.Confirmed.fPort = AppPort;
             mcpsReq.Req.Confirmed.fBuffer = AppData;
             mcpsReq.Req.Confirmed.fBufferSize = AppDataSize;
-            mcpsReq.Req.Confirmed.NbTrials = 8;
+            mcpsReq.Req.Confirmed.NbTrials = enableChannelsDRnum * 2;
             mcpsReq.Req.Confirmed.Datarate = persist.sesspar.JoinRequestTrials;
         }
     }
@@ -314,12 +316,16 @@ bool modemSendFrame(uint8_t port,uint8_t *data,uint8_t len,bool confirm)
         AppDataSize = len;
         memcpy(AppData,data,len);
         NextTx = SendFrame( );
+        if(!NextTx)
+        {
+            bitNeedAck = false;
+        }
     }
 
     DEBUG_OUTPUT("TxDutyCycleTime = %d\r\n",TxDutyCycleTime);
-    TxDutyCycleTime = randr( 0, 1500 );
+    TxDutyCycleTime = persist.sesspar.alarm * 1000 + randr(-100, 100);
     DeviceState = DEVICE_STATE_CYCLE;
-    return NextTx;
+    return !NextTx;
 }
 /*!
  * \brief Function executed on TxNextPacket Timeout event
@@ -455,6 +461,8 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         }
         case MCPS_CONFIRMED:
         {
+            bitNeedAck = true;
+            bitNeedAckTimer  = TimerGetCurrentTime();
             break;
         }
         case MCPS_PROPRIETARY:
@@ -629,7 +637,7 @@ int main( void )
     DEBUG_OUTPUT("Power on\r\n");
     DeviceState = DEVICE_STATE_INIT;
     modem_wkt_init();
-    //modem_wwdt_init();
+    modem_wwdt_init();
     while( 1 )
     {
         switch( DeviceState )
@@ -758,8 +766,14 @@ int main( void )
                     mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
                     mibReq.Param.ChannelsDefaultDatarate = persist.sesspar.JoinRequestTrials;
                     LoRaMacMibSetRequestConfirm( &mibReq );
-                
-                    DeviceState = DEVICE_STATE_SEND;
+                    if(persist.nodetype == CLASS_C)
+                    {
+                        DeviceState = DEVICE_STATE_SEND;
+                    }
+                    else
+                    {
+                        DeviceState = DEVICE_STATE_SLEEP;
+                    }
                 }
                 break;
             }
@@ -772,16 +786,20 @@ int main( void )
                     PrepareTxFrame( AppPort );
 
                     NextTx = SendFrame( );
+                    if(!NextTx)
+                    {
+                        bitNeedAck = false;
+                    }
                 }
-                if( ComplianceTest.Running == true )
+                /*if( ComplianceTest.Running == true )
                 {
                     // Schedule next packet transmission
                     TxDutyCycleTime = 5000; // 5000 ms
                 }
-                else
+                else*/
                 {
                     // Schedule next packet transmission
-                    TxDutyCycleTime = persist.sesspar.alarm * 1000;
+                    TxDutyCycleTime = persist.sesspar.alarm * 1000 + randr(-100, 100);
                 }
                 DEBUG_OUTPUT("TxDutyCycleTime = %d\r\n",TxDutyCycleTime);
                 DeviceState = DEVICE_STATE_CYCLE;

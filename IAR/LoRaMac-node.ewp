@@ -723,11 +723,11 @@
         </option>
         <option>
           <name>IlinkIcfOverride</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IlinkIcfFile</name>
-          <state>$TOOLKIT_DIR$\config\linker\NXP\LPC824M201.icf</state>
+          <state>$PROJ_DIR$\LoRaMac-node.icf</state>
         </option>
         <option>
           <name>IlinkIcfFileSlave</name>

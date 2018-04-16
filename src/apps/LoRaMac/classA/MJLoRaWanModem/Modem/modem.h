@@ -36,7 +36,7 @@ typedef uint32_t devaddr_t;
 
 // Global maximum frame length
 enum { STD_PREAMBLE_LEN  =  8 };
-enum { MAX_LEN_FRAME     = 64 };
+enum { MAX_LEN_FRAME     = 128 };
 enum { LEN_DEVNONCE      =  2 };
 enum { LEN_ARTNONCE      =  3 };
 enum { LEN_NETID         =  3 };
@@ -70,7 +70,7 @@ enum { MAX_LEN_PAYLOAD = MAX_LEN_FRAME-(int)OFF_DAT_OPTS-4 };
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 2
 #define VERSION_STR   "VERSION 1.2 ("__DATE__" "__TIME__")"
-#define MAX_LEN_FRAME   64
+#define MAX_LEN_FRAME   128
 // LED ids
 #define LED_SESSION 1  // (IMST: yellow, LRSC: green)
 #define LED_POWER   2  // (IMST: green,  LRSC: red)
