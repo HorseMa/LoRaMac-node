@@ -860,11 +860,11 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
         case FRAME_TYPE_DATA_CONFIRMED_DOWN:
         case FRAME_TYPE_DATA_UNCONFIRMED_DOWN:
             {
-                if( IsLoRaMacNetworkJoined == false )
+                /*if( IsLoRaMacNetworkJoined == false )
                 {
                     MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
                     break;
-                }
+                }*/
                 // Check if the received payload size is valid
                 getPhy.UplinkDwellTime = LoRaMacParams.DownlinkDwellTime;
                 getPhy.Datarate = McpsIndication.RxDatarate;
@@ -1127,7 +1127,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
             break;
         case FRAME_TYPE_PROPRIETARY:
             {
-                if( IsLoRaMacNetworkJoined == false )
+                /*if( IsLoRaMacNetworkJoined == false )
                 {
                     MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
                     break;
@@ -1137,7 +1137,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                     McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
                     PrepareRxDoneAbort( );
                     return;
-                }
+                }*/
                 memcpy1( LoRaMacRxPayload, &payload[pktHeaderLen], size );
 
                 McpsIndication.McpsIndication = MCPS_PROPRIETARY;
@@ -1149,7 +1149,10 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                 break;
             }
         default:
-                if( IsLoRaMacNetworkJoined == false )
+                McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+                PrepareRxDoneAbort( );
+                break;
+                /*if( IsLoRaMacNetworkJoined == false )
                 {
                     MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
                     break;
@@ -1159,7 +1162,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                     McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
                     PrepareRxDoneAbort( );
                     return;
-                }
+                }*/
     }
 
     // Verify if we need to disable the AckTimeoutTimer

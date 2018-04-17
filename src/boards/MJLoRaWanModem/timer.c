@@ -438,8 +438,11 @@ void TimerLowPowerHandler( void )
     {
         if(TimerGetElapsedTime(bitNeedAckTimer) > 200)
         {
-            extern void OnTxNextPacketTimerEvent( void );
-            OnTxNextPacketTimerEvent( );
+            uint8_t sendlen = 0;
+            uint8_t senddata[1];
+            senddata[0] = Board_LED_Get(0);
+            modemSendFrame(1,senddata,sendlen,false);
+            return;
         }
         else
         {
@@ -468,23 +471,15 @@ void TimerLowPowerHandler( void )
         macflashtimer = TimerGetCurrentTime();
     }
     
-    if((TimerGetElapsedTime(uartflashtimer) > 50) && (TimerGetElapsedTime(macflashtimer) > 10))
+    if((TimerGetElapsedTime(uartflashtimer) > 10) && (TimerGetElapsedTime(macflashtimer) > 10))
     {
         extern uint32_t UpLinkCounter;
         if((UpLinkCounter == 0) && ( persist.flags & FLAGS_SESSPAR ))
         {
-            extern void OnTxNextPacketTimerEvent( void );
-            OnTxNextPacketTimerEvent( );
-            /*extern enum eDeviceState
-            {
-                DEVICE_STATE_INIT,
-                DEVICE_STATE_JOIN,
-                DEVICE_STATE_SEND,
-                DEVICE_STATE_CYCLE,
-                DEVICE_STATE_SLEEP
-            }DeviceState;
-
-            DeviceState = DEVICE_STATE_SEND;*/
+            uint8_t sendlen = 1;
+            uint8_t senddata[1];
+            senddata[0] = Board_LED_Get(0);
+            modemSendFrame(1,senddata,sendlen,true);
             return;
         }
         //NVIC_DisableIRQ(PININT0_IRQn);
@@ -495,17 +490,21 @@ void TimerLowPowerHandler( void )
         //    Chip_PMU_ClearPowerDownControl(LPC_PMU, PMU_DPDCTRL_LPOSCEN | PMU_DPDCTRL_LPOSCDPDEN);
         }
         //else
-        {
-            Chip_PMU_SetPowerDownControl(LPC_PMU, PMU_DPDCTRL_LPOSCEN | PMU_DPDCTRL_LPOSCDPDEN);
-        }
+        
         DelayMs(2);
         Chip_PMU_SetPowerDownControl(LPC_PMU, PMU_DPDCTRL_WAKEUPPHYS);
         if( persist.flags & FLAGS_JOINPAR )
         {
+            Chip_PMU_SetPowerDownControl(LPC_PMU, PMU_DPDCTRL_LPOSCEN | PMU_DPDCTRL_LPOSCDPDEN);
             WakeupTest(WKT_CLKSRC_10KHZ,6,PMU_MCU_DEEP_PWRDOWN);
         }
         else
         {
+            if(persist.sesspar.alarm)
+            {
+                Chip_PMU_SetPowerDownControl(LPC_PMU, PMU_DPDCTRL_LPOSCEN | PMU_DPDCTRL_LPOSCDPDEN);
+            }
+            //if(persist.sesspar.alarm)
             WakeupTest(WKT_CLKSRC_10KHZ,persist.sesspar.alarm,PMU_MCU_DEEP_PWRDOWN);
         }
         //WakeupTest(WKT_CLKSRC_10KHZ,persist.sesspar.alarm,PMU_MCU_SLEEP);

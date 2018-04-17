@@ -664,7 +664,7 @@ static void persist_init (uint8_t factory) {
         persist.eventmask = ~0;
         persist.startchannelid = 0;
         persist.channeltoenable = 3;
-        persist.nodetype = CLASS_A;
+        persist.nodetype = CLASS_C;
         eeprom_write();
     }
     else
@@ -823,13 +823,16 @@ void modem_rxdone () {
         gethex(&channeltoenable, MODEM.cmdbuf+2+2+1,      2) == 1 &&
         MODEM.cmdbuf[2+2+1+2] == ',' &&
         gethex(&nodetype, MODEM.cmdbuf+2+2+1+2+1, 2) == 1 ) {
-            persist.startchannelid = startchannelid;
-            persist.channeltoenable = channeltoenable;
-            persist.nodetype = nodetype;
-            //DeviceState = DEVICE_STATE_INIT;
-            eeprom_write();
-            ok = 1;
-            rst = 1;
+            if((startchannelid < 96) && (channeltoenable > 0)  && (nodetype < 3))
+            {
+                persist.startchannelid = startchannelid;
+                persist.channeltoenable = channeltoenable;
+                persist.nodetype = nodetype;
+                //DeviceState = DEVICE_STATE_INIT;
+                eeprom_write();
+                ok = 1;
+                rst = 1;
+            }
         }
     }
     } else if(cmd == 'j' && len == 1) { // ATJ join network
@@ -861,7 +864,7 @@ void modem_rxdone () {
                 if((LMIC.pendTxPort > 0) && (LMIC.pendTxPort < 224)){
                     //IsTxConfirmed = LMIC.pendTxConf;
                     //PrepareTxFrame( LMIC.pendTxPort ,LMIC.pendTxData ,LMIC.pendTxLen);
-                    ok = 1;//modemSendFrame(LMIC.pendTxPort,LMIC.pendTxData,LMIC.pendTxLen,LMIC.pendTxConf);
+                    ok = modemSendFrame(LMIC.pendTxPort,LMIC.pendTxData,LMIC.pendTxLen,LMIC.pendTxConf);
                 }
             }
         }
@@ -884,11 +887,12 @@ void modem_rxdone () {
         ok = 1;
     } else if(MODEM.cmdbuf[1] == '=' && (((len - 2) % 2) == 0) && (((len - 2) / 2) > 0)) { // ATA= set (alarm timer)
         uint32_t secs;
-        if(hex2int(&secs, MODEM.cmdbuf+2, len-2)) {
+        if(hex2int(&secs, MODEM.cmdbuf+2, len-2) && secs < (0xffffffff / 10000)) {
             persist.sesspar.alarm = secs;
             //os_setTimedCallback(&MODEM.alarmjob, os_getTime()+sec2osticks(secs), onAlarm);
             eeprom_write();
             ok = 1;
+            rst = 1;
         }
         }
     }
@@ -907,10 +911,10 @@ void modem_rxdone () {
     BoardDisableIrq( );
     Chip_UART_SendRB(LPC_USART0, &txring, MODEM.cmdbuf, MODEM.rsplen);
     BoardEnableIrq( );
-    if((ok) && (cmd == 't'))
+    /*if((ok) && (cmd == 't'))
     {
         modemSendFrame(LMIC.pendTxPort,LMIC.pendTxData,LMIC.pendTxLen,LMIC.pendTxConf);
-    }
+    }*/
     if(rst == true)
     {
         DelayMs(4);

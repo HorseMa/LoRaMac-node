@@ -296,7 +296,7 @@ bool modemSendFrame(uint8_t port,uint8_t *data,uint8_t len,bool confirm)
     {
         if( mibReq.Param.IsNetworkJoined == true )
         {
-            DeviceState = DEVICE_STATE_SEND;
+            //DeviceState = DEVICE_STATE_SEND;
             NextTx = true;
         }
         else
@@ -321,10 +321,12 @@ bool modemSendFrame(uint8_t port,uint8_t *data,uint8_t len,bool confirm)
             bitNeedAck = false;
         }
     }
-
-    DEBUG_OUTPUT("TxDutyCycleTime = %d\r\n",TxDutyCycleTime);
-    TxDutyCycleTime = persist.sesspar.alarm * 1000 + randr(-100, 100);
-    DeviceState = DEVICE_STATE_CYCLE;
+    if((persist.nodetype == CLASS_C) && (persist.sesspar.alarm))
+    {
+        DEBUG_OUTPUT("TxDutyCycleTime = %d\r\n",TxDutyCycleTime);
+        TxDutyCycleTime = persist.sesspar.alarm * 1000 + randr(-100, 100);
+        DeviceState = DEVICE_STATE_CYCLE;
+    }
     return !NextTx;
 }
 /*!
@@ -810,9 +812,12 @@ int main( void )
                 DeviceState = DEVICE_STATE_SLEEP;
 
                 // Schedule next packet transmission
-                TimerSetValue( &TxNextPacketTimer, TxDutyCycleTime );
-                TimerStart( &TxNextPacketTimer );
-                DEBUG_OUTPUT("Start tx packet timer\r\n");
+                if(persist.sesspar.alarm)
+                {
+                    TimerSetValue( &TxNextPacketTimer, TxDutyCycleTime );
+                    TimerStart( &TxNextPacketTimer );
+                    DEBUG_OUTPUT("Start tx packet timer\r\n");
+                }
                 break;
             }
             case DEVICE_STATE_SLEEP:

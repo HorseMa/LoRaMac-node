@@ -96,7 +96,7 @@ void SX1276IoInit( void )
     /* Configure GPIO pin as input pin */
     Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, 0, 18);
     
-    Chip_IOCON_PinDisableOpenDrainMode(LPC_IOCON,IOCON_PIO17);  // SDN
+    //Chip_IOCON_PinDisableOpenDrainMode(LPC_IOCON,IOCON_PIO17);  // SDN
     Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, 0, 17);
     
     Chip_GPIO_SetPinDIR(LPC_GPIO_PORT,0,23,TRUE); // NRESET
