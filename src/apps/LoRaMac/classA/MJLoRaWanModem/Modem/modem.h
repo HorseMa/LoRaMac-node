@@ -93,7 +93,7 @@ enum { MAX_LEN_PAYLOAD = MAX_LEN_FRAME-(int)OFF_DAT_OPTS-4 };
 /* Data array to write to flash */
 extern uint32_t src_iap_array_data[ARRAY_ELEMENTS];
 
-#define EEPROM_BASE (0x8000 - 64 * 2)//(0x8000 - 0x80)
+#define EEPROM_BASE (0x00007C00)//(0x8000 - 64 * 2)//(0x8000 - 0x80)
 
 // patch patterns
 //#define PATTERN_JOINCFG_STR "g0CMw49rRbav6HwQN0115g42OpmvTn7q" // (32 bytes)
