@@ -649,7 +649,13 @@ static void persist_init (uint8_t factory) {
     uint32_t cfghash = (joincfgcrc << 16) | sesscfgcrc;
     uint8_t unique_id_mac[8] = {0};
     BoardGetUniqueId( unique_id_mac );
-    if(PERSIST->cfghash != cfghash || factory) {
+    uint8_t loop;
+    for(loop = 0;loop < 0x80;loop ++)
+    {
+        if(*((uint8_t*)PERSIST + loop) != 0xff)
+          break;
+    }
+    if(loop >= 0x80 || factory) {//PERSIST->cfghash != cfghash
         memcpy(joincfg.param.deveui,unique_id_mac,8);
         uint8_t appEui[] = LORAWAN_APPLICATION_EUI;
         uint8_t appKey[] = LORAWAN_APPLICATION_KEY;
@@ -672,7 +678,7 @@ static void persist_init (uint8_t factory) {
     else
     {
         memcpy(&persist,PERSIST,sizeof(persist_t));
-        if(memcmp(joincfg.param.deveui, unique_id_mac ,8))
+        if(memcmp(persist.joinpar.deveui, unique_id_mac ,8))
         {
             while(1);
         }

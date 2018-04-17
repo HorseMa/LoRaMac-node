@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# IAR ELF Linker V7.30.3.8024/W32 for ARM                 17/Apr/2018  21:52:33
+# IAR ELF Linker V7.30.3.8024/W32 for ARM                 17/Apr/2018  22:37:18
 # Copyright 2007-2014 IAR Systems AB.
 #
 #    Output file  =  
@@ -104,7 +104,7 @@ __SystemLibrary = DLib
   .intvec            ro code  0x00000000    0xc0  iar_startup_lpc82x.o [1]
                             - 0x000000c0    0xc0
 
-"P1", part 1 of 3:                         0x238
+"P1", part 1 of 3:                         0x230
   .text              ro code  0x000000c0   0x124  Region.o [1]
   .text              ro code  0x000001e4    0x10  chip_8xx.o [1]
   .text              ro code  0x000001f4     0x2  iar_startup_lpc82x.o [1]
@@ -118,14 +118,13 @@ __SystemLibrary = DLib
   .rodata            const    0x000002dc     0x0  packbits_init.o [5]
   .text              ro code  0x000002dc     0x4  low_level_init.o [3]
   .text              ro code  0x000002e0    0x10  iar_startup_lpc82x.o [1]
-  .rodata            const    0x000002f0     0x8  lpc824board.o [1]
-                            - 0x000002f8   0x238
+                            - 0x000002f0   0x230
 
 "P3":                                        0x4
   .crp               ro code  0x000002fc     0x4  iar_startup_lpc82x.o [1]
                             - 0x00000300     0x4
 
-"P1", part 2 of 3:                        0x78ce
+"P1", part 2 of 3:                        0x78eb
   .text              ro code  0x00000300  0x1a3c  LoRaMac.o [1]
   .text              ro code  0x00001d3c   0x3c4  timer.o [1]
   .text              ro code  0x00002100   0x288  LoRaMacCrypto.o [1]
@@ -141,51 +140,49 @@ __SystemLibrary = DLib
   .text              ro code  0x00003324   0x600  main.o [1]
   .text              ro code  0x00003924    0x2a  delay-board.o [1]
   .text              ro code  0x0000394e     0x2  iar_startup_lpc82x.o [1]
-  .text              ro code  0x00003950   0xb90  modem.o [1]
-  .text              ro code  0x000044e0   0x24a  cmac.o [1]
-  .text              ro code  0x0000472c   0x7c0  aes.o [1]
-  .text              ro code  0x00004eec   0x2d6  RegionCommon.o [1]
-  .text              ro code  0x000051c4   0x160  uart-board.o [1]
-  .text              ro code  0x00005324   0x170  spi-board.o [1]
-  .text              ro code  0x00005494   0x260  clock_8xx.o [1]
-  .text              ro code  0x000056f4   0x1d6  ring_buffer.o [1]
-  .text              ro code  0x000058cc    0x7e  pmu_8xx.o [1]
-  .text              ro code  0x0000594c   0x228  hex.o [1]
-  .text              ro code  0x00005b74    0xc2  DblDiv.o [4]
-  .text              ro code  0x00005c36   0x184  DblMul.o [4]
-  .text              ro code  0x00005dba   0x1b4  DblAddSub.o [4]
-  .text              ro code  0x00005f70    0x58  ceil.o [4]
-  .text              ro code  0x00005fc8    0x52  DblToI32.o [4]
-  .text              ro code  0x0000601c    0x1e  I32ToFlt.o [4]
-  .text              ro code  0x0000603a   0x116  FltAddSub.o [4]
-  .text              ro code  0x00006150    0x32  FltToDbl.o [4]
-  .text              ro code  0x00006184    0x58  floor.o [4]
-  .text              ro code  0x000061dc     0x2  IntDivZer.o [5]
-  .text              ro code  0x000061e0    0x28  swm_8xx.o [1]
-  .text              ro code  0x00006208    0x44  spim_8xx.o [1]
-  .text              ro code  0x0000624c    0x2e  spi_8xx.o [1]
-  .text              ro code  0x0000627a    0x6a  I64DivMod.o [5]
-  .text              ro code  0x000062e4     0x2  I64DivZer.o [5]
-  .text              ro code  0x000062e8   0x2d0  sx1276-board.o [1]
-  .text              ro code  0x000065b8    0xd8  packbits_init.o [5]
-  .text              ro code  0x00006690    0x14  exit.o [6]
-  .rodata            const    0x000066a4    0xd4  modem.o [1]
-  .rodata            const    0x00006778    0x6c  sx1276-board.o [1]
-  .text              ro code  0x000067e4    0x3e  board_sysinit.o [1]
-  .text              ro code  0x00006824    0x28  data_init.o [5]
-  .iar.init_table    const    0x0000684c    0x34  - Linker created -
-  .text              ro code  0x00006880    0x1a  cmain.o [5]
-  .text              ro code  0x0000689a     0x8  exit.o [3]
-  .text              ro code  0x000068a4     0xa  cexit.o [5]
-  .text              ro code  0x000068ae     0xc  cstartup_M.o [5]
-  .text              ro code  0x000068ba     0x8  sysinit.o [1]
-  .text              ro code  0x000068c2     0x4  iar_startup_lpc82x.o [1]
-  .text              ro code  0x000068c8   0xea4  sx1276.o [1]
-  .text              ro code  0x0000776c   0x44c  irc_8xx.o [1]
-  Initializer bytes  ro data  0x00007bb8    0x16  <for P2 s0>
-                            - 0x00007bce  0x78ce
+  .text              ro code  0x00003950   0xba4  modem.o [1]
+  .text              ro code  0x000044f4   0x24a  cmac.o [1]
+  .text              ro code  0x00004740   0x7c0  aes.o [1]
+  .text              ro code  0x00004f00   0x2d6  RegionCommon.o [1]
+  .text              ro code  0x000051d8   0x160  uart-board.o [1]
+  .text              ro code  0x00005338   0x170  spi-board.o [1]
+  .text              ro code  0x000054a8   0x260  clock_8xx.o [1]
+  .text              ro code  0x00005708   0x1d6  ring_buffer.o [1]
+  .text              ro code  0x000058e0    0x7e  pmu_8xx.o [1]
+  .text              ro code  0x00005960   0x228  hex.o [1]
+  .text              ro code  0x00005b88    0xc2  DblDiv.o [4]
+  .text              ro code  0x00005c4a   0x184  DblMul.o [4]
+  .text              ro code  0x00005dce   0x1b4  DblAddSub.o [4]
+  .text              ro code  0x00005f84    0x58  ceil.o [4]
+  .text              ro code  0x00005fdc    0x52  DblToI32.o [4]
+  .text              ro code  0x00006030    0x1e  I32ToFlt.o [4]
+  .text              ro code  0x0000604e   0x116  FltAddSub.o [4]
+  .text              ro code  0x00006164    0x32  FltToDbl.o [4]
+  .text              ro code  0x00006198    0x58  floor.o [4]
+  .text              ro code  0x000061f0     0x2  IntDivZer.o [5]
+  .text              ro code  0x000061f4    0x28  swm_8xx.o [1]
+  .text              ro code  0x0000621c    0x44  spim_8xx.o [1]
+  .text              ro code  0x00006260    0x2e  spi_8xx.o [1]
+  .text              ro code  0x0000628e    0x6a  I64DivMod.o [5]
+  .text              ro code  0x000062f8     0x2  I64DivZer.o [5]
+  .text              ro code  0x000062fc   0x2d0  sx1276-board.o [1]
+  .text              ro code  0x000065cc   0x44c  irc_8xx.o [1]
+  .text              ro code  0x00006a18    0xd8  packbits_init.o [5]
+  .rodata            const    0x00006af0    0xd4  modem.o [1]
+  .text              ro code  0x00006bc4    0x3e  board_sysinit.o [1]
+  .text              ro code  0x00006c04    0x14  sysinit_8xx.o [1]
+  .text              ro code  0x00006c18    0x28  data_init.o [5]
+  .iar.init_table    const    0x00006c40    0x34  - Linker created -
+  .text              ro code  0x00006c74    0x1a  cmain.o [5]
+  .text              ro code  0x00006c8e     0x8  exit.o [3]
+  .text              ro code  0x00006c98     0xa  cexit.o [5]
+  .rodata            const    0x00006ca4     0x8  lpc824board.o [1]
+  .text              ro code  0x00006cac     0x4  iar_startup_lpc82x.o [1]
+  .text              ro code  0x00006cb0   0xea4  sx1276.o [1]
+  Initializer bytes  ro data  0x00007b54    0x97  <for P2 s0>
+                            - 0x00007beb  0x78eb
 
-"P1", part 3 of 3:                         0x36e
+"P1", part 3 of 3:                         0x36d
   .text              ro code  0x00007c80     0x2  iar_startup_lpc82x.o [1]
   .text              ro code  0x00007c82    0xe0  I32DivModFast.o [5]
   .text              ro code  0x00007d62     0x2  iar_startup_lpc82x.o [1]
@@ -195,9 +192,12 @@ __SystemLibrary = DLib
   .text              ro code  0x00007eb4    0x5e  wwdt_8xx.o [1]
   .text              ro code  0x00007f12    0x32  DblCmpGe.o [4]
   .text              ro code  0x00007f44     0xa  abort.o [3]
-  .text              ro code  0x00007f50    0x14  sysinit_8xx.o [1]
-  Initializer bytes  ro data  0x00007f64    0x8a  <for P2 s0>
-                            - 0x00007fee   0x36e
+  .text              ro code  0x00007f50    0x14  exit.o [6]
+  .rodata            const    0x00007f64    0x6c  sx1276-board.o [1]
+  .text              ro code  0x00007fd0     0xc  cstartup_M.o [5]
+  .text              ro code  0x00007fdc     0x8  sysinit.o [1]
+  Initializer bytes  ro data  0x00007fe4     0x9  <for P2 s0>
+                            - 0x00007fed   0x36d
 
 "P2":                                     0x1f28
   P2 s0                       0x10000000   0x554  <Init block>
@@ -251,8 +251,8 @@ Zero (__iar_zero_init3)
 
 Copy/packbits (__iar_packbits_init3)
     2 source ranges, total size 0xa0 (11% of destination):
-          0x00007bb8    0x16
-          0x00007f64    0x8a
+          0x00007b54    0x97
+          0x00007fe4     0x9
     1 destination range, total size 0x554:
           0x10000000   0x554
 
@@ -287,7 +287,7 @@ F:\LoRaProduct\source code\LoRaMac-node\IAR\Debug\Obj: [1]
     irc_8xx.o               1 100                 2
     lpc824board.o             669        8        1
     main.o                  1 536       13      356
-    modem.o                 2 960      254    1 221
+    modem.o                 2 980      254    1 221
     pmu_8xx.o                 126
     ring_buffer.o             470
     spi-board.o               368
@@ -306,7 +306,7 @@ F:\LoRaProduct\source code\LoRaMac-node\IAR\Debug\Obj: [1]
     wkt_8xx.o                  60
     wwdt_8xx.o                 94
     -----------------------------------------------
-    Total:                 29 325      488    5 923
+    Total:                 29 345      488    5 923
 
 command line: [2]
     -----------------------------------------------
@@ -357,10 +357,10 @@ shb_l.a: [6]
     -----------------------------------------------
     Total:                     20
 
-    Gaps                       33                 1
+    Gaps                       31        2        1
     Linker created                      52    2 048
 ---------------------------------------------------
-    Grand Total:           32 028      540    7 972
+    Grand Total:           32 046      542    7 972
 
 
 *******************************************************************************
@@ -369,11 +369,11 @@ shb_l.a: [6]
 
 Entry                      Address   Size  Type      Object
 -----                      -------   ----  ----      ------
-?main                   0x00006881         Code  Gb  cmain.o [5]
-AES_CMAC_Final          0x000045dd  0x14e  Code  Gb  cmac.o [1]
-AES_CMAC_Init           0x000044e1   0x22  Code  Gb  cmac.o [1]
-AES_CMAC_SetKey         0x00004503   0x10  Code  Gb  cmac.o [1]
-AES_CMAC_Update         0x00004513   0xca  Code  Gb  cmac.o [1]
+?main                   0x00006c75         Code  Gb  cmain.o [5]
+AES_CMAC_Final          0x000045f1  0x14e  Code  Gb  cmac.o [1]
+AES_CMAC_Init           0x000044f5   0x22  Code  Gb  cmac.o [1]
+AES_CMAC_SetKey         0x00004517   0x10  Code  Gb  cmac.o [1]
+AES_CMAC_Update         0x00004527   0xca  Code  Gb  cmac.o [1]
 AckTimeoutRetries       0x100003d4    0x1  Data  Lc  LoRaMac.o [1]
 AckTimeoutRetriesCounter
                         0x100003d5    0x1  Data  Lc  LoRaMac.o [1]
@@ -406,9 +406,9 @@ Board_Init              0x000032e5   0x14  Code  Gb  lpc824board.o [1]
 Board_LED_Get           0x00003109    0x6  Code  Gb  lpc824board.o [1]
 Board_LED_Init          0x000030bd   0x2e  Code  Lc  lpc824board.o [1]
 Board_LED_Set           0x000030eb   0x1e  Code  Gb  lpc824board.o [1]
-Board_SetupClocking     0x0000680b    0xc  Code  Gb  board_sysinit.o [1]
-Board_SetupMuxing       0x00006801    0xa  Code  Gb  board_sysinit.o [1]
-Board_SystemInit        0x00006817    0xc  Code  Gb  board_sysinit.o [1]
+Board_SetupClocking     0x00006beb    0xc  Code  Gb  board_sysinit.o [1]
+Board_SetupMuxing       0x00006be1    0xa  Code  Gb  board_sysinit.o [1]
+Board_SystemInit        0x00006bf7    0xc  Code  Gb  board_sysinit.o [1]
 CSTACK$$Base            0x10001728          --   Gb  - Linker created -
 CSTACK$$Limit           0x10001f28          --   Gb  - Linker created -
 CalculateBackOff        0x00000fbd   0x38  Code  Lc  LoRaMac.o [1]
@@ -422,13 +422,13 @@ CheckToDisableAckTimeout
 Chip_Clock_DisablePeriphClock
                         0x0000306f   0x12  Code  Lc  lpc824board.o [1]
 Chip_Clock_DisablePeriphClock
-                        0x0000536b   0x12  Code  Lc  spi-board.o [1]
+                        0x0000537f   0x12  Code  Lc  spi-board.o [1]
 Chip_Clock_DisablePeriphClock
-                        0x000051e5   0x12  Code  Lc  uart-board.o [1]
+                        0x000051f9   0x12  Code  Lc  uart-board.o [1]
 Chip_Clock_EnablePeriphClock
                         0x00002c97   0x12  Code  Lc  board.o [1]
 Chip_Clock_EnablePeriphClock
-                        0x000067e5   0x12  Code  Lc  board_sysinit.o [1]
+                        0x00006bc5   0x12  Code  Lc  board_sysinit.o [1]
 Chip_Clock_EnablePeriphClock
                         0x0000020d   0x12  Code  Lc  gpio_8xx.o [1]
 Chip_Clock_EnablePeriphClock
@@ -436,55 +436,55 @@ Chip_Clock_EnablePeriphClock
 Chip_Clock_EnablePeriphClock
                         0x000039bb   0x12  Code  Lc  modem.o [1]
 Chip_Clock_EnablePeriphClock
-                        0x00005359   0x12  Code  Lc  spi-board.o [1]
+                        0x0000536d   0x12  Code  Lc  spi-board.o [1]
 Chip_Clock_EnablePeriphClock
-                        0x00006353   0x12  Code  Lc  sx1276-board.o [1]
+                        0x00006367   0x12  Code  Lc  sx1276-board.o [1]
 Chip_Clock_EnablePeriphClock
-                        0x000051d3   0x12  Code  Lc  uart-board.o [1]
+                        0x000051e7   0x12  Code  Lc  uart-board.o [1]
 Chip_Clock_EnablePeriphClock
                         0x00002ed5   0x12  Code  Lc  uart_8xx.o [1]
 Chip_Clock_EnablePeriphClock
                         0x00007eb5   0x12  Code  Lc  wwdt_8xx.o [1]
 Chip_Clock_GetExtClockInRate
-                        0x000054fd    0x6  Code  Lc  clock_8xx.o [1]
+                        0x00005511    0x6  Code  Lc  clock_8xx.o [1]
 Chip_Clock_GetIntOscRate
-                        0x000054f9    0x4  Code  Lc  clock_8xx.o [1]
+                        0x0000550d    0x4  Code  Lc  clock_8xx.o [1]
 Chip_Clock_GetMainClockRate
-                        0x000055a1   0x32  Code  Gb  clock_8xx.o [1]
+                        0x000055b5   0x32  Code  Gb  clock_8xx.o [1]
 Chip_Clock_GetMainOscRate
-                        0x000054f3    0x6  Code  Lc  clock_8xx.o [1]
-Chip_Clock_GetPLLFreq   0x00005525    0xe  Code  Lc  clock_8xx.o [1]
+                        0x00005507    0x6  Code  Lc  clock_8xx.o [1]
+Chip_Clock_GetPLLFreq   0x00005539    0xe  Code  Lc  clock_8xx.o [1]
 Chip_Clock_GetSystemClockRate
-                        0x000055d3   0x12  Code  Gb  clock_8xx.o [1]
+                        0x000055e7   0x12  Code  Gb  clock_8xx.o [1]
 Chip_Clock_GetSystemPLLInClockRate
-                        0x0000555f   0x2c  Code  Gb  clock_8xx.o [1]
+                        0x00005573   0x2c  Code  Gb  clock_8xx.o [1]
 Chip_Clock_GetSystemPLLOutClockRate
-                        0x0000558b   0x16  Code  Gb  clock_8xx.o [1]
+                        0x0000559f   0x16  Code  Gb  clock_8xx.o [1]
 Chip_Clock_GetUARTClockDiv
-                        0x000054cf    0x8  Code  Lc  clock_8xx.o [1]
+                        0x000054e3    0x8  Code  Lc  clock_8xx.o [1]
 Chip_Clock_GetUSARTNBaseClockRate
-                        0x000055e5   0x44  Code  Gb  clock_8xx.o [1]
+                        0x000055f9   0x44  Code  Gb  clock_8xx.o [1]
 Chip_Clock_GetWDTLFORate
-                        0x00005505   0x20  Code  Lc  clock_8xx.o [1]
+                        0x00005519   0x20  Code  Lc  clock_8xx.o [1]
 Chip_Clock_GetWDTOSCRate
-                        0x0000554f   0x10  Code  Gb  clock_8xx.o [1]
+                        0x00005563   0x10  Code  Gb  clock_8xx.o [1]
 Chip_Clock_IsSystemPLLLocked
-                        0x0000777f    0xc  Code  Lc  irc_8xx.o [1]
+                        0x000065df    0xc  Code  Lc  irc_8xx.o [1]
 Chip_Clock_SetMainClockSource
-                        0x00005541    0xe  Code  Gb  clock_8xx.o [1]
+                        0x00005555    0xe  Code  Gb  clock_8xx.o [1]
 Chip_Clock_SetSysClockDiv
-                        0x0000778b    0x6  Code  Lc  irc_8xx.o [1]
+                        0x000065eb    0x6  Code  Lc  irc_8xx.o [1]
 Chip_Clock_SetSystemPLLSource
-                        0x00005533    0xe  Code  Gb  clock_8xx.o [1]
+                        0x00005547    0xe  Code  Gb  clock_8xx.o [1]
 Chip_Clock_SetUARTClockDiv
-                        0x000054c9    0x6  Code  Lc  clock_8xx.o [1]
+                        0x000054dd    0x6  Code  Lc  clock_8xx.o [1]
 Chip_Clock_SetUARTClockDiv
-                        0x000051f7    0x6  Code  Lc  uart-board.o [1]
+                        0x0000520b    0x6  Code  Lc  uart-board.o [1]
 Chip_Clock_SetUSARTNBaseClockRate
-                        0x00005629   0x54  Code  Gb  clock_8xx.o [1]
+                        0x0000563d   0x54  Code  Gb  clock_8xx.o [1]
 Chip_Clock_SetWDTOSC    0x000039ad    0xe  Code  Lc  modem.o [1]
 Chip_Clock_SetupSystemPLL
-                        0x0000776d   0x12  Code  Lc  irc_8xx.o [1]
+                        0x000065cd   0x12  Code  Lc  irc_8xx.o [1]
 Chip_FMC_ComputeSignature
                         0x00002ad1   0x14  Code  Lc  eeprom-board.o [1]
 Chip_FMC_ComputeSignatureBlocks
@@ -492,22 +492,22 @@ Chip_FMC_ComputeSignatureBlocks
 Chip_FMC_IsSignatureBusy
                         0x00002af1    0x8  Code  Lc  eeprom-board.o [1]
 Chip_FMC_SetFLASHAccess
-                        0x00007791    0x8  Code  Lc  irc_8xx.o [1]
+                        0x000065f1    0x8  Code  Lc  irc_8xx.o [1]
 Chip_GPIO_Init          0x00000229    0xa  Code  Gb  gpio_8xx.o [1]
-Chip_GPIO_SetPinDIR     0x0000639b   0x12  Code  Lc  sx1276-board.o [1]
+Chip_GPIO_SetPinDIR     0x000063af   0x12  Code  Lc  sx1276-board.o [1]
 Chip_GPIO_SetPinDIRInput
                         0x000030ab   0x10  Code  Lc  lpc824board.o [1]
 Chip_GPIO_SetPinDIRInput
-                        0x0000638b   0x10  Code  Lc  sx1276-board.o [1]
+                        0x0000639f   0x10  Code  Lc  sx1276-board.o [1]
 Chip_GPIO_SetPinDIROutput
                         0x0000309b   0x10  Code  Lc  lpc824board.o [1]
 Chip_GPIO_SetPinDIROutput
-                        0x0000637b   0x10  Code  Lc  sx1276-board.o [1]
+                        0x0000638f   0x10  Code  Lc  sx1276-board.o [1]
 Chip_GPIO_SetPinOutHigh
-                        0x0000537d   0x10  Code  Lc  spi-board.o [1]
+                        0x00005391   0x10  Code  Lc  spi-board.o [1]
 Chip_GPIO_SetPinOutHigh
-                        0x000063ad   0x10  Code  Lc  sx1276-board.o [1]
-Chip_GPIO_SetPinOutLow  0x000063bd   0x10  Code  Lc  sx1276-board.o [1]
+                        0x000063c1   0x10  Code  Lc  sx1276-board.o [1]
+Chip_GPIO_SetPinOutLow  0x000063d1   0x10  Code  Lc  sx1276-board.o [1]
 Chip_GPIO_SetPinState   0x00003093    0x8  Code  Lc  lpc824board.o [1]
 Chip_IAP_CopyRamToFlash
                         0x00007dc9   0x2c  Code  Gb  iap.o [1]
@@ -516,79 +516,79 @@ Chip_IAP_PreSectorForReadWrite
                         0x00007dad   0x1c  Code  Gb  iap.o [1]
 Chip_IAP_ReadUID        0x00007df5   0x2c  Code  Gb  iap.o [1]
 Chip_IOCON_PinSetMode   0x000001f9   0x12  Code  Gb  iocon_8xx.o [1]
-Chip_IRC_SetFreq        0x000077e5   0x66  Code  Gb  irc_8xx.o [1]
+Chip_IRC_SetFreq        0x00006645   0x66  Code  Gb  irc_8xx.o [1]
 Chip_PININT_ClearIntStatus
-                        0x00006377    0x4  Code  Lc  sx1276-board.o [1]
+                        0x0000638b    0x4  Code  Lc  sx1276-board.o [1]
 Chip_PININT_EnableIntHigh
-                        0x00006373    0x4  Code  Lc  sx1276-board.o [1]
+                        0x00006387    0x4  Code  Lc  sx1276-board.o [1]
 Chip_PININT_SetPinModeEdge
-                        0x00006365    0xe  Code  Lc  sx1276-board.o [1]
+                        0x00006379    0xe  Code  Lc  sx1276-board.o [1]
 Chip_PMU_ClearPowerDownControl
                         0x000039d9    0xe  Code  Lc  modem.o [1]
 Chip_PMU_DeepPowerDownState
-                        0x0000590b   0x16  Code  Gb  pmu_8xx.o [1]
+                        0x0000591f   0x16  Code  Gb  pmu_8xx.o [1]
 Chip_PMU_DeepSleepState
-                        0x000058df   0x16  Code  Gb  pmu_8xx.o [1]
+                        0x000058f3   0x16  Code  Gb  pmu_8xx.o [1]
 Chip_PMU_PowerDownState
-                        0x000058f5   0x16  Code  Gb  pmu_8xx.o [1]
+                        0x00005909   0x16  Code  Gb  pmu_8xx.o [1]
 Chip_PMU_SetPowerDownControl
                         0x000039cd    0xc  Code  Lc  modem.o [1]
 Chip_PMU_SetPowerDownControl
                         0x00001d3d    0xc  Code  Lc  timer.o [1]
-Chip_PMU_Sleep          0x00005925   0x26  Code  Gb  pmu_8xx.o [1]
-Chip_PMU_SleepState     0x000058cd   0x12  Code  Gb  pmu_8xx.o [1]
-Chip_SPIM_GetClockRate  0x00006209   0x14  Code  Gb  spim_8xx.o [1]
-Chip_SPIM_SetClockRate  0x0000621d   0x2c  Code  Gb  spim_8xx.o [1]
+Chip_PMU_Sleep          0x00005939   0x26  Code  Gb  pmu_8xx.o [1]
+Chip_PMU_SleepState     0x000058e1   0x12  Code  Gb  pmu_8xx.o [1]
+Chip_SPIM_GetClockRate  0x0000621d   0x14  Code  Gb  spim_8xx.o [1]
+Chip_SPIM_SetClockRate  0x00006231   0x2c  Code  Gb  spim_8xx.o [1]
 Chip_SPI_ClearCFGRegBits
-                        0x0000539b    0xe  Code  Lc  spi-board.o [1]
-Chip_SPI_ClearStatus    0x000068d1    0x4  Code  Lc  sx1276.o [1]
-Chip_SPI_ConfigureSPI   0x000053d7   0x1c  Code  Lc  spi-board.o [1]
-Chip_SPI_DelayConfig    0x0000624d   0x2e  Code  Gb  spi_8xx.o [1]
-Chip_SPI_Enable         0x000053cd    0xa  Code  Lc  spi-board.o [1]
-Chip_SPI_GetStatus      0x000068c9    0x8  Code  Lc  sx1276.o [1]
-Chip_SPI_Init           0x000053a9   0x24  Code  Lc  spi-board.o [1]
-Chip_SPI_ReceiveFrame   0x00006901    0x6  Code  Lc  sx1276.o [1]
+                        0x000053af    0xe  Code  Lc  spi-board.o [1]
+Chip_SPI_ClearStatus    0x00006cb9    0x4  Code  Lc  sx1276.o [1]
+Chip_SPI_ConfigureSPI   0x000053eb   0x1c  Code  Lc  spi-board.o [1]
+Chip_SPI_DelayConfig    0x00006261   0x2e  Code  Gb  spi_8xx.o [1]
+Chip_SPI_Enable         0x000053e1    0xa  Code  Lc  spi-board.o [1]
+Chip_SPI_GetStatus      0x00006cb1    0x8  Code  Lc  sx1276.o [1]
+Chip_SPI_Init           0x000053bd   0x24  Code  Lc  spi-board.o [1]
+Chip_SPI_ReceiveFrame   0x00006ce9    0x6  Code  Lc  sx1276.o [1]
 Chip_SPI_SendFirstFrame
-                        0x000068d5   0x14  Code  Lc  sx1276.o [1]
-Chip_SPI_SendLastFrame  0x000068ed   0x14  Code  Lc  sx1276.o [1]
-Chip_SPI_SendMidFrame   0x000068e9    0x4  Code  Lc  sx1276.o [1]
-Chip_SPI_SetCFGRegBits  0x0000538d    0xe  Code  Lc  spi-board.o [1]
+                        0x00006cbd   0x14  Code  Lc  sx1276.o [1]
+Chip_SPI_SendLastFrame  0x00006cd5   0x14  Code  Lc  sx1276.o [1]
+Chip_SPI_SendMidFrame   0x00006cd1    0x4  Code  Lc  sx1276.o [1]
+Chip_SPI_SetCFGRegBits  0x000053a1    0xe  Code  Lc  spi-board.o [1]
 Chip_SWM_DisableFixedPin
                         0x00003081   0x12  Code  Lc  lpc824board.o [1]
 Chip_SWM_DisableFixedPin
-                        0x000051fd   0x12  Code  Lc  uart-board.o [1]
+                        0x00005211   0x12  Code  Lc  uart-board.o [1]
 Chip_SWM_MovablePinAssign
-                        0x000061e1   0x22  Code  Gb  swm_8xx.o [1]
+                        0x000061f5   0x22  Code  Gb  swm_8xx.o [1]
 Chip_SYSCTL_AssertPeriphReset
-                        0x00005495   0x12  Code  Lc  clock_8xx.o [1]
+                        0x000054a9   0x12  Code  Lc  clock_8xx.o [1]
 Chip_SYSCTL_AssertPeriphReset
                         0x0000396d   0x12  Code  Lc  modem.o [1]
 Chip_SYSCTL_AssertPeriphReset
-                        0x00005325   0x12  Code  Lc  spi-board.o [1]
+                        0x00005339   0x12  Code  Lc  spi-board.o [1]
 Chip_SYSCTL_AssertPeriphReset
                         0x00002ea1   0x12  Code  Lc  uart_8xx.o [1]
 Chip_SYSCTL_DeassertPeriphReset
-                        0x000054a7   0x12  Code  Lc  clock_8xx.o [1]
+                        0x000054bb   0x12  Code  Lc  clock_8xx.o [1]
 Chip_SYSCTL_DeassertPeriphReset
                         0x0000397f   0x12  Code  Lc  modem.o [1]
 Chip_SYSCTL_DeassertPeriphReset
-                        0x00005337   0x12  Code  Lc  spi-board.o [1]
+                        0x0000534b   0x12  Code  Lc  spi-board.o [1]
 Chip_SYSCTL_DeassertPeriphReset
                         0x00002eb3   0x12  Code  Lc  uart_8xx.o [1]
 Chip_SYSCTL_EnablePINTWakeup
-                        0x00006343   0x10  Code  Lc  sx1276-board.o [1]
+                        0x00006357   0x10  Code  Lc  sx1276-board.o [1]
 Chip_SYSCTL_EnablePeriphWakeup
                         0x000039a1    0xc  Code  Lc  modem.o [1]
 Chip_SYSCTL_GetUSARTFRGDivider
-                        0x000054dd    0x8  Code  Lc  clock_8xx.o [1]
+                        0x000054f1    0x8  Code  Lc  clock_8xx.o [1]
 Chip_SYSCTL_GetUSARTFRGMultiplier
-                        0x000054eb    0x8  Code  Lc  clock_8xx.o [1]
+                        0x000054ff    0x8  Code  Lc  clock_8xx.o [1]
 Chip_SYSCTL_PeriphReset
-                        0x000054b9   0x10  Code  Lc  clock_8xx.o [1]
+                        0x000054cd   0x10  Code  Lc  clock_8xx.o [1]
 Chip_SYSCTL_PeriphReset
                         0x00003991   0x10  Code  Lc  modem.o [1]
 Chip_SYSCTL_PeriphReset
-                        0x00005349   0x10  Code  Lc  spi-board.o [1]
+                        0x0000535d   0x10  Code  Lc  spi-board.o [1]
 Chip_SYSCTL_PeriphReset
                         0x00002ec5   0x10  Code  Lc  uart_8xx.o [1]
 Chip_SYSCTL_PowerDown   0x00007e73   0x16  Code  Gb  syscon_8xx.o [1]
@@ -596,22 +596,22 @@ Chip_SYSCTL_PowerUp     0x00007e89   0x16  Code  Gb  syscon_8xx.o [1]
 Chip_SYSCTL_SetDeepSleepPD
                         0x00007e55    0xe  Code  Gb  syscon_8xx.o [1]
 Chip_SYSCTL_SetPinInterrupt
-                        0x0000633b    0x8  Code  Lc  sx1276-board.o [1]
+                        0x0000634f    0x8  Code  Lc  sx1276-board.o [1]
 Chip_SYSCTL_SetUSARTFRGDivider
-                        0x000054d7    0x6  Code  Lc  clock_8xx.o [1]
+                        0x000054eb    0x6  Code  Lc  clock_8xx.o [1]
 Chip_SYSCTL_SetUSARTFRGMultiplier
-                        0x000054e5    0x6  Code  Lc  clock_8xx.o [1]
+                        0x000054f9    0x6  Code  Lc  clock_8xx.o [1]
 Chip_SYSCTL_SetWakeup   0x00007e63   0x10  Code  Gb  syscon_8xx.o [1]
-Chip_SetupIrcClocking   0x00007f51    0xc  Code  Gb  sysinit_8xx.o [1]
-Chip_UART_ClearStatus   0x0000523b    0x4  Code  Lc  uart-board.o [1]
-Chip_UART_ConfigData    0x0000522f    0xc  Code  Lc  uart-board.o [1]
-Chip_UART_Enable        0x0000520f    0xe  Code  Lc  uart-board.o [1]
+Chip_SetupIrcClocking   0x00006c05    0xc  Code  Gb  sysinit_8xx.o [1]
+Chip_UART_ClearStatus   0x0000524f    0x4  Code  Lc  uart-board.o [1]
+Chip_UART_ConfigData    0x00005243    0xc  Code  Lc  uart-board.o [1]
+Chip_UART_Enable        0x00005223    0xe  Code  Lc  uart-board.o [1]
 Chip_UART_GetStatus     0x00002f0b    0x8  Code  Lc  uart_8xx.o [1]
 Chip_UART_IRQRBHandler  0x00003029   0x34  Code  Gb  uart_8xx.o [1]
 Chip_UART_Init          0x00002f2b   0x30  Code  Gb  uart_8xx.o [1]
-Chip_UART_IntDisable    0x0000522b    0x4  Code  Lc  uart-board.o [1]
+Chip_UART_IntDisable    0x0000523f    0x4  Code  Lc  uart-board.o [1]
 Chip_UART_IntDisable    0x00002f07    0x4  Code  Lc  uart_8xx.o [1]
-Chip_UART_IntEnable     0x00005227    0x4  Code  Lc  uart-board.o [1]
+Chip_UART_IntEnable     0x0000523b    0x4  Code  Lc  uart-board.o [1]
 Chip_UART_IntEnable     0x00002f03    0x4  Code  Lc  uart_8xx.o [1]
 Chip_UART_RXIntHandlerRB
                         0x00002f93   0x24  Code  Gb  uart_8xx.o [1]
@@ -620,7 +620,7 @@ Chip_UART_ReadRB        0x0000301b    0xe  Code  Gb  uart_8xx.o [1]
 Chip_UART_SendByte      0x00002ef7    0x4  Code  Lc  uart_8xx.o [1]
 Chip_UART_SendRB        0x00002fe1   0x3a  Code  Gb  uart_8xx.o [1]
 Chip_UART_SetBaud       0x00002f7d   0x16  Code  Gb  uart_8xx.o [1]
-Chip_UART_TXEnable      0x0000521d    0xa  Code  Lc  uart-board.o [1]
+Chip_UART_TXEnable      0x00005231    0xa  Code  Lc  uart-board.o [1]
 Chip_UART_TXIntHandlerRB
                         0x00002fb7   0x2a  Code  Gb  uart_8xx.o [1]
 Chip_WKT_ClearIntStatus
@@ -644,7 +644,7 @@ Chip_WWDT_SetWarning    0x00003a15    0x4  Code  Lc  modem.o [1]
 Chip_WWDT_SetWindow     0x00003a19    0x4  Code  Lc  modem.o [1]
 Chip_WWDT_Start         0x00003a29   0x12  Code  Lc  modem.o [1]
 ComplianceTest          0x1000049c   0x14  Data  Gb  main.o [1]
-CountChannels           0x00004eed   0x26  Code  Lc  RegionCommon.o [1]
+CountChannels           0x00004f01   0x26  Code  Lc  RegionCommon.o [1]
 CountNbOfEnabledChannels
                         0x00002421   0x9a  Code  Lc  RegionCN470.o [1]
 DataratesCN470          0x000029b0    0x8  Data  Lc  RegionCN470.o [1]
@@ -654,10 +654,10 @@ DeviceState             0x100004b8    0x1  Data  Gb  main.o [1]
 DioIrq                  0x10000514   0x18  Data  Gb  sx1276.o [1]
 DownLinkCounter         0x10000400    0x4  Data  Lc  LoRaMac.o [1]
 DutyCycleOn             0x10001149    0x1  Data  Lc  LoRaMac.o [1]
-ExtRateIn               0x000002f4    0x4  Data  Gb  lpc824board.o [1]
+ExtRateIn               0x00006ca8    0x4  Data  Gb  lpc824board.o [1]
 GetBandwidth            0x000023f9   0x1e  Code  Lc  RegionCN470.o [1]
 GetNextLowerTxDr        0x000023e5   0x14  Code  Lc  RegionCN470.o [1]
-InStream_Read           0x000065b9   0x22  Code  Lc  packbits_init.o [5]
+InStream_Read           0x00006a19   0x22  Code  Lc  packbits_init.o [5]
 IrqNestLevel            0x10001720    0x1  Data  Lc  board.o [1]
 IsFPortAllowed          0x00001095    0xc  Code  Lc  LoRaMac.o [1]
 IsLastTxConfirmed       0x100004b3    0x1  Data  Lc  main.o [1]
@@ -735,10 +735,10 @@ MlmeIndication          0x0000369d   0x10  Code  Lc  main.o [1]
 MulticastChannels       0x100003f8    0x4  Data  Lc  LoRaMac.o [1]
 NVIC_ClearPendingIRQ    0x0000395f    0xe  Code  Lc  modem.o [1]
 NVIC_EnableIRQ          0x00003951    0xe  Code  Lc  modem.o [1]
-NVIC_EnableIRQ          0x000062e9    0xe  Code  Lc  sx1276-board.o [1]
-NVIC_EnableIRQ          0x000051c5    0xe  Code  Lc  uart-board.o [1]
+NVIC_EnableIRQ          0x000062fd    0xe  Code  Lc  sx1276-board.o [1]
+NVIC_EnableIRQ          0x000051d9    0xe  Code  Lc  uart-board.o [1]
 NVIC_SetPriority        0x00002c19   0x44  Code  Lc  board.o [1]
-NVIC_SetPriority        0x000062f7   0x44  Code  Lc  sx1276-board.o [1]
+NVIC_SetPriority        0x0000630b   0x44  Code  Lc  sx1276-board.o [1]
 NVIC_SystemReset        0x00002c5d   0x10  Code  Lc  board.o [1]
 NextTx                  0x100004b7    0x1  Data  Lc  main.o [1]
 NodeAckRequested        0x100003cb    0x1  Data  Lc  LoRaMac.o [1]
@@ -759,21 +759,21 @@ OnTxNextPacketTimerEvent
                         0x0000347d   0x72  Code  Gb  main.o [1]
 OpenContinuousRx2Window
                         0x000010a1    0xe  Code  Lc  LoRaMac.o [1]
-OscRateIn               0x000002f0    0x4  Data  Gb  lpc824board.o [1]
-PININT0_IRQHandler      0x00006567   0x10  Code  Gb  sx1276-board.o [1]
-PININT1_IRQHandler      0x00006577   0x10  Code  Gb  sx1276-board.o [1]
+OscRateIn               0x00006ca4    0x4  Data  Gb  lpc824board.o [1]
+PININT0_IRQHandler      0x0000657b   0x10  Code  Gb  sx1276-board.o [1]
+PININT1_IRQHandler      0x0000658b   0x10  Code  Gb  sx1276-board.o [1]
 PrepareFrame            0x000010bd  0x29c  Code  Gb  LoRaMac.o [1]
 PrepareRxDoneAbort      0x000003e7   0x34  Code  Lc  LoRaMac.o [1]
 PrepareTxFrame          0x00003325   0x64  Code  Lc  main.o [1]
 ProcessMacCommands      0x00000e81    0x2  Code  Lc  LoRaMac.o [1]
 PublicNetwork           0x100003c6    0x1  Data  Lc  LoRaMac.o [1]
-Radio                   0x00006778   0x6c  Data  Gb  sx1276-board.o [1]
+Radio                   0x00007f64   0x6c  Data  Gb  sx1276-board.o [1]
 RadioEvents             0x100016b0   0x1c  Data  Lc  LoRaMac.o [1]
 RadioEvents             0x10000510    0x4  Data  Lc  sx1276.o [1]
 RadioIsActive           0x10001723    0x1  Data  Lc  sx1276-board.o [1]
-RadioRegsInit           0x0000773c   0x30  Data  Gb  sx1276.o [1]
-Region$$Table$$Base     0x0000684c          --   Gb  - Linker created -
-Region$$Table$$Limit    0x00006880          --   Gb  - Linker created -
+RadioRegsInit           0x00007b24   0x30  Data  Gb  sx1276.o [1]
+Region$$Table$$Base     0x00006c40          --   Gb  - Linker created -
+Region$$Table$$Limit    0x00006c74          --   Gb  - Linker created -
 RegionAdrNext           0x0000012b   0x1a  Code  Gb  Region.o [1]
 RegionAlternateDr       0x00000189   0x12  Code  Gb  Region.o [1]
 RegionApplyDrOffset     0x000001c5   0x1a  Code  Gb  Region.o [1]
@@ -797,24 +797,24 @@ RegionCN470Verify       0x000025e9   0x5a  Code  Gb  RegionCN470.o [1]
 RegionCalcBackOff       0x0000019b   0x10  Code  Gb  Region.o [1]
 RegionChanMaskSet       0x00000119   0x12  Code  Gb  Region.o [1]
 RegionCommonCalcBackOff
-                        0x0000516b   0x58  Code  Gb  RegionCommon.o [1]
+                        0x0000517f   0x58  Code  Gb  RegionCommon.o [1]
 RegionCommonChanMaskCopy
-                        0x00004f6b   0x22  Code  Gb  RegionCommon.o [1]
+                        0x00004f7f   0x22  Code  Gb  RegionCommon.o [1]
 RegionCommonComputeRxWindowParameters
-                        0x00005089   0xaa  Code  Gb  RegionCommon.o [1]
+                        0x0000509d   0xaa  Code  Gb  RegionCommon.o [1]
 RegionCommonComputeSymbolTimeLoRa
-                        0x0000504d   0x2e  Code  Gb  RegionCommon.o [1]
+                        0x00005061   0x2e  Code  Gb  RegionCommon.o [1]
 RegionCommonComputeTxPower
-                        0x00005141   0x2a  Code  Gb  RegionCommon.o [1]
+                        0x00005155   0x2a  Code  Gb  RegionCommon.o [1]
 RegionCommonCountChannels
-                        0x00004f3d   0x2e  Code  Gb  RegionCommon.o [1]
-RegionCommonGetJoinDc   0x00004f13   0x1a  Code  Gb  RegionCommon.o [1]
+                        0x00004f51   0x2e  Code  Gb  RegionCommon.o [1]
+RegionCommonGetJoinDc   0x00004f27   0x1a  Code  Gb  RegionCommon.o [1]
 RegionCommonSetBandTxDone
-                        0x00004f8d    0xa  Code  Gb  RegionCommon.o [1]
+                        0x00004fa1    0xa  Code  Gb  RegionCommon.o [1]
 RegionCommonUpdateBandTimeOff
-                        0x00004f97   0xb6  Code  Gb  RegionCommon.o [1]
+                        0x00004fab   0xb6  Code  Gb  RegionCommon.o [1]
 RegionCommonValueInRange
-                        0x00004f2d   0x10  Code  Gb  RegionCommon.o [1]
+                        0x00004f41   0x10  Code  Gb  RegionCommon.o [1]
 RegionComputeRxWindowParameters
                         0x00000145   0x16  Code  Gb  Region.o [1]
 RegionGetPhyParam       0x000000cd   0x16  Code  Gb  Region.o [1]
@@ -827,18 +827,18 @@ RegionTxConfig          0x00000171   0x18  Code  Gb  Region.o [1]
 RegionVerify            0x00000103   0x16  Code  Gb  Region.o [1]
 RepeaterSupport         0x100003c7    0x1  Data  Lc  LoRaMac.o [1]
 ResetMacParameters      0x00001005   0x82  Code  Lc  LoRaMac.o [1]
-RingBuffer_GetCount     0x000056f5    0x8  Code  Lc  ring_buffer.o [1]
-RingBuffer_GetFree      0x000056fd    0xe  Code  Lc  ring_buffer.o [1]
-RingBuffer_Init         0x00005731   0x10  Code  Gb  ring_buffer.o [1]
-RingBuffer_Insert       0x00005741   0x32  Code  Gb  ring_buffer.o [1]
-RingBuffer_InsertMult   0x00005773   0x94  Code  Gb  ring_buffer.o [1]
-RingBuffer_IsEmpty      0x00005721   0x10  Code  Lc  ring_buffer.o [1]
+RingBuffer_GetCount     0x00005709    0x8  Code  Lc  ring_buffer.o [1]
+RingBuffer_GetFree      0x00005711    0xe  Code  Lc  ring_buffer.o [1]
+RingBuffer_Init         0x00005745   0x10  Code  Gb  ring_buffer.o [1]
+RingBuffer_Insert       0x00005755   0x32  Code  Gb  ring_buffer.o [1]
+RingBuffer_InsertMult   0x00005787   0x94  Code  Gb  ring_buffer.o [1]
+RingBuffer_IsEmpty      0x00005735   0x10  Code  Lc  ring_buffer.o [1]
 RingBuffer_IsEmpty      0x00001d49   0x10  Code  Lc  timer.o [1]
 RingBuffer_IsEmpty      0x00002ee7   0x10  Code  Lc  uart_8xx.o [1]
-RingBuffer_IsFull       0x0000570b   0x16  Code  Lc  ring_buffer.o [1]
-RingBuffer_Pop          0x00005807   0x32  Code  Gb  ring_buffer.o [1]
-RingBuffer_PopMult      0x00005839   0x92  Code  Gb  ring_buffer.o [1]
-RxChainCalibration      0x00006a51   0x8e  Code  Lc  sx1276.o [1]
+RingBuffer_IsFull       0x0000571f   0x16  Code  Lc  ring_buffer.o [1]
+RingBuffer_Pop          0x0000581b   0x32  Code  Gb  ring_buffer.o [1]
+RingBuffer_PopMult      0x0000584d   0x92  Code  Gb  ring_buffer.o [1]
+RxChainCalibration      0x00006e39   0x8e  Code  Lc  sx1276.o [1]
 RxSlot                  0x100003d7    0x1  Data  Lc  LoRaMac.o [1]
 RxTimeoutSyncWord       0x10000ef8   0x14  Data  Gb  sx1276.o [1]
 RxTimeoutTimer          0x10000ee4   0x14  Data  Gb  sx1276.o [1]
@@ -851,60 +851,60 @@ RxWindowSetup           0x00000e2d   0x16  Code  Lc  LoRaMac.o [1]
 RxWindowTimer1          0x10000470   0x14  Data  Gb  LoRaMac.o [1]
 RxWindowTimer2          0x10000484   0x14  Data  Gb  LoRaMac.o [1]
 SX1276                  0x10000ce4   0xec  Data  Gb  sx1276.o [1]
-SX1276AntSwDeInit       0x00006529   0x1a  Code  Gb  sx1276-board.o [1]
-SX1276AntSwInit         0x0000650f   0x1a  Code  Gb  sx1276-board.o [1]
-SX1276CheckRfFrequency  0x00006563    0x4  Code  Gb  sx1276-board.o [1]
+SX1276AntSwDeInit       0x0000653d   0x1a  Code  Gb  sx1276-board.o [1]
+SX1276AntSwInit         0x00006523   0x1a  Code  Gb  sx1276-board.o [1]
+SX1276CheckRfFrequency  0x00006577    0x4  Code  Gb  sx1276-board.o [1]
 SX1276GetBoardTcxoWakeupTime
-                        0x00006465    0x4  Code  Gb  sx1276-board.o [1]
-SX1276GetPaSelect       0x000064d7    0xe  Code  Gb  sx1276-board.o [1]
-SX1276GetStatus         0x00006985    0x6  Code  Gb  sx1276.o [1]
-SX1276GetTimeOnAir      0x00006dfd  0x128  Code  Gb  sx1276.o [1]
-SX1276GetWakeupTime     0x00007509    0xa  Code  Gb  sx1276.o [1]
-SX1276Init              0x00006907   0x7e  Code  Gb  sx1276.o [1]
-SX1276IoInit            0x000063cd   0x54  Code  Gb  sx1276-board.o [1]
-SX1276IoIrqInit         0x00006421   0x42  Code  Gb  sx1276-board.o [1]
-SX1276IsChannelFree     0x000069c7   0x48  Code  Gb  sx1276.o [1]
-SX1276OnDio0Irq         0x000075a1  0x150  Code  Gb  sx1276.o [1]
-SX1276OnDio1Irq         0x000076f1   0x3c  Code  Gb  sx1276.o [1]
-SX1276OnTimeoutIrq      0x00007515   0x7c  Code  Gb  sx1276.o [1]
-SX1276Random            0x00006a0f   0x42  Code  Gb  sx1276.o [1]
-SX1276Read              0x0000737d   0x10  Code  Gb  sx1276.o [1]
-SX1276ReadBuffer        0x00007417   0x92  Code  Gb  sx1276.o [1]
-SX1276ReadFifo          0x000074b7    0xe  Code  Gb  sx1276.o [1]
-SX1276ReadRssi          0x000072a3   0x32  Code  Gb  sx1276.o [1]
-SX1276Reset             0x00006469   0x28  Code  Gb  sx1276-board.o [1]
-SX1276Send              0x00006f29   0x90  Code  Gb  sx1276.o [1]
-SX1276SetAntSw          0x00006543   0x20  Code  Gb  sx1276-board.o [1]
-SX1276SetAntSwLowPower  0x000064e5   0x2a  Code  Gb  sx1276-board.o [1]
-SX1276SetBoardTcxo      0x00006463    0x2  Code  Lc  sx1276-board.o [1]
-SX1276SetChannel        0x0000698b   0x3c  Code  Gb  sx1276.o [1]
+                        0x00006479    0x4  Code  Gb  sx1276-board.o [1]
+SX1276GetPaSelect       0x000064eb    0xe  Code  Gb  sx1276-board.o [1]
+SX1276GetStatus         0x00006d6d    0x6  Code  Gb  sx1276.o [1]
+SX1276GetTimeOnAir      0x000071e5  0x128  Code  Gb  sx1276.o [1]
+SX1276GetWakeupTime     0x000078f1    0xa  Code  Gb  sx1276.o [1]
+SX1276Init              0x00006cef   0x7e  Code  Gb  sx1276.o [1]
+SX1276IoInit            0x000063e1   0x54  Code  Gb  sx1276-board.o [1]
+SX1276IoIrqInit         0x00006435   0x42  Code  Gb  sx1276-board.o [1]
+SX1276IsChannelFree     0x00006daf   0x48  Code  Gb  sx1276.o [1]
+SX1276OnDio0Irq         0x00007989  0x150  Code  Gb  sx1276.o [1]
+SX1276OnDio1Irq         0x00007ad9   0x3c  Code  Gb  sx1276.o [1]
+SX1276OnTimeoutIrq      0x000078fd   0x7c  Code  Gb  sx1276.o [1]
+SX1276Random            0x00006df7   0x42  Code  Gb  sx1276.o [1]
+SX1276Read              0x00007765   0x10  Code  Gb  sx1276.o [1]
+SX1276ReadBuffer        0x000077ff   0x92  Code  Gb  sx1276.o [1]
+SX1276ReadFifo          0x0000789f    0xe  Code  Gb  sx1276.o [1]
+SX1276ReadRssi          0x0000768b   0x32  Code  Gb  sx1276.o [1]
+SX1276Reset             0x0000647d   0x28  Code  Gb  sx1276-board.o [1]
+SX1276Send              0x00007311   0x90  Code  Gb  sx1276.o [1]
+SX1276SetAntSw          0x00006557   0x20  Code  Gb  sx1276-board.o [1]
+SX1276SetAntSwLowPower  0x000064f9   0x2a  Code  Gb  sx1276-board.o [1]
+SX1276SetBoardTcxo      0x00006477    0x2  Code  Lc  sx1276-board.o [1]
+SX1276SetChannel        0x00006d73   0x3c  Code  Gb  sx1276.o [1]
 SX1276SetMaxPayloadLength
-                        0x000074c5   0x18  Code  Gb  sx1276.o [1]
-SX1276SetModem          0x00007307   0x50  Code  Gb  sx1276.o [1]
-SX1276SetOpMode         0x000072d7   0x30  Code  Gb  sx1276.o [1]
-SX1276SetPublicNetwork  0x000074dd   0x26  Code  Gb  sx1276.o [1]
-SX1276SetRfTxPower      0x00006491   0x46  Code  Gb  sx1276-board.o [1]
-SX1276SetRx             0x00007021  0x1ca  Code  Gb  sx1276.o [1]
-SX1276SetRxConfig       0x00006aed  0x1b2  Code  Gb  sx1276.o [1]
-SX1276SetSleep          0x00006fb9   0x26  Code  Gb  sx1276.o [1]
-SX1276SetStby           0x00006fdf   0x26  Code  Gb  sx1276.o [1]
-SX1276SetTx             0x000071f5   0x72  Code  Gb  sx1276.o [1]
-SX1276SetTxConfig       0x00006cb1  0x144  Code  Gb  sx1276.o [1]
-SX1276StartCad          0x00007275   0x2e  Code  Gb  sx1276.o [1]
-SX1276Write             0x00007371    0xc  Code  Gb  sx1276.o [1]
-SX1276WriteBuffer       0x0000738d   0x8a  Code  Gb  sx1276.o [1]
-SX1276WriteFifo         0x000074a9    0xe  Code  Gb  sx1276.o [1]
+                        0x000078ad   0x18  Code  Gb  sx1276.o [1]
+SX1276SetModem          0x000076ef   0x50  Code  Gb  sx1276.o [1]
+SX1276SetOpMode         0x000076bf   0x30  Code  Gb  sx1276.o [1]
+SX1276SetPublicNetwork  0x000078c5   0x26  Code  Gb  sx1276.o [1]
+SX1276SetRfTxPower      0x000064a5   0x46  Code  Gb  sx1276-board.o [1]
+SX1276SetRx             0x00007409  0x1ca  Code  Gb  sx1276.o [1]
+SX1276SetRxConfig       0x00006ed5  0x1b2  Code  Gb  sx1276.o [1]
+SX1276SetSleep          0x000073a1   0x26  Code  Gb  sx1276.o [1]
+SX1276SetStby           0x000073c7   0x26  Code  Gb  sx1276.o [1]
+SX1276SetTx             0x000075dd   0x72  Code  Gb  sx1276.o [1]
+SX1276SetTxConfig       0x00007099  0x144  Code  Gb  sx1276.o [1]
+SX1276StartCad          0x0000765d   0x2e  Code  Gb  sx1276.o [1]
+SX1276Write             0x00007759    0xc  Code  Gb  sx1276.o [1]
+SX1276WriteBuffer       0x00007775   0x8a  Code  Gb  sx1276.o [1]
+SX1276WriteFifo         0x00007891    0xe  Code  Gb  sx1276.o [1]
 ScheduleTx              0x00000eb5  0x108  Code  Lc  LoRaMac.o [1]
 Send                    0x00000e83   0x2e  Code  Gb  LoRaMac.o [1]
 SendFrame               0x00003389   0x6e  Code  Lc  main.o [1]
 SendFrameOnChannel      0x00001361   0x80  Code  Gb  LoRaMac.o [1]
-SpiInit                 0x000053f3   0x82  Code  Gb  spi-board.o [1]
+SpiInit                 0x00005407   0x82  Code  Gb  spi-board.o [1]
 SrvAckRequested         0x100003cc    0x1  Data  Lc  LoRaMac.o [1]
 SysTick_Config          0x00002c6d   0x2a  Code  Lc  board.o [1]
 SysTick_Handler         0x00002d49   0x1c  Code  Gb  board.o [1]
 SystemCoreClock         0x10001718    0x4  Data  Gb  chip_8xx.o [1]
 SystemCoreClockUpdate   0x000001e5   0x10  Code  Gb  chip_8xx.o [1]
-SystemInit              0x000068bb    0x8  Code  Gb  sysinit.o [1]
+SystemInit              0x00007fdd    0x8  Code  Gb  sysinit.o [1]
 TimerExists             0x00001f33   0x18  Code  Lc  timer.o [1]
 TimerGetCurrentTime     0x00001f67    0x6  Code  Gb  timer.o [1]
 TimerGetElapsedTime     0x00001f6d   0x16  Code  Gb  timer.o [1]
@@ -925,8 +925,8 @@ TxDutyCycleTime         0x100004d4    0x4  Data  Lc  main.o [1]
 TxNextPacketTimer       0x100004f8   0x14  Data  Lc  main.o [1]
 TxTimeOnAir             0x10000424    0x4  Data  Gb  LoRaMac.o [1]
 TxTimeoutTimer          0x10000ed0   0x14  Data  Gb  sx1276.o [1]
-UART0_IRQHandler        0x000052e5   0x10  Code  Gb  uart-board.o [1]
-UartMcuInit             0x0000523f   0xa6  Code  Gb  uart-board.o [1]
+UART0_IRQHandler        0x000052f9   0x10  Code  Gb  uart-board.o [1]
+UartMcuInit             0x00005253   0xa6  Code  Gb  uart-board.o [1]
 UpLinkCounter           0x100003fc    0x4  Data  Gb  LoRaMac.o [1]
 ValidatePayloadLength   0x00000e43   0x3e  Code  Lc  LoRaMac.o [1]
 WDT_IRQHandler          0x00003ab9    0x2  Code  Gb  modem.o [1]
@@ -936,19 +936,19 @@ __Vectors               0x00000000          --   Gb  iar_startup_lpc82x.o [1]
 __Vectors_End           0x000000c0         Data  Gb  iar_startup_lpc82x.o [1]
 __Vectors_Size {Abs}    0x000000c0          --   Gb  iar_startup_lpc82x.o [1]
 __aeabi_cdrcmple        0x00007f13         Code  Gb  DblCmpGe.o [4]
-__aeabi_d2iz            0x00005fc9         Code  Gb  DblToI32.o [4]
-__aeabi_d2uiz           0x00005fed         Code  Gb  DblToI32.o [4]
-__aeabi_dadd            0x00005dbb         Code  Gb  DblAddSub.o [4]
-__aeabi_ddiv            0x00005b75         Code  Gb  DblDiv.o [4]
-__aeabi_dmul            0x00005c37         Code  Gb  DblMul.o [4]
-__aeabi_dsub            0x00005e81         Code  Gb  DblAddSub.o [4]
-__aeabi_f2d             0x00006151         Code  Gb  FltToDbl.o [4]
-__aeabi_fsub            0x000060a1         Code  Gb  FltAddSub.o [4]
+__aeabi_d2iz            0x00005fdd         Code  Gb  DblToI32.o [4]
+__aeabi_d2uiz           0x00006001         Code  Gb  DblToI32.o [4]
+__aeabi_dadd            0x00005dcf         Code  Gb  DblAddSub.o [4]
+__aeabi_ddiv            0x00005b89         Code  Gb  DblDiv.o [4]
+__aeabi_dmul            0x00005c4b         Code  Gb  DblMul.o [4]
+__aeabi_dsub            0x00005e95         Code  Gb  DblAddSub.o [4]
+__aeabi_f2d             0x00006165         Code  Gb  FltToDbl.o [4]
+__aeabi_fsub            0x000060b5         Code  Gb  FltAddSub.o [4]
 __aeabi_i2d             0x000002a9         Code  Gb  I32ToDbl.o [4]
 __aeabi_idiv            0x00007caf         Code  Gb  I32DivModFast.o [5]
-__aeabi_idiv0           0x000061dd         Code  Gb  IntDivZer.o [5]
+__aeabi_idiv0           0x000061f1         Code  Gb  IntDivZer.o [5]
 __aeabi_idivmod         0x00007caf         Code  Gb  I32DivModFast.o [5]
-__aeabi_ldiv0           0x000062e5         Code  Gb  I64DivZer.o [5]
+__aeabi_ldiv0           0x000062f9         Code  Gb  I64DivZer.o [5]
 __aeabi_memclr4         0x00007da1         Code  Gb  ABImemset.o [5]
 __aeabi_memclr8         0x00007da1         Code  Gb  ABImemset.o [5]
 __aeabi_memcpy          0x00002389         Code  Gb  ABImemcpy.o [5]
@@ -956,64 +956,64 @@ __aeabi_memcpy4         0x000023b1         Code  Wk  ABImemcpy.o [5]
 __aeabi_memset4         0x00007d65         Code  Gb  ABImemset.o [5]
 __aeabi_memset8         0x00007d65         Code  Gb  ABImemset.o [5]
 __aeabi_ui2d            0x000002bd         Code  Gb  I32ToDbl.o [4]
-__aeabi_ui2f            0x0000601d         Code  Gb  I32ToFlt.o [4]
+__aeabi_ui2f            0x00006031         Code  Gb  I32ToFlt.o [4]
 __aeabi_uidiv           0x00007cb5         Code  Gb  I32DivModFast.o [5]
 __aeabi_uidivmod        0x00007cb5         Code  Gb  I32DivModFast.o [5]
-__aeabi_uldivmod        0x0000627b         Code  Gb  I64DivMod.o [5]
-__cmain                 0x00006881         Code  Gb  cmain.o [5]
-__exit                  0x00006691   0x14  Code  Gb  exit.o [6]
+__aeabi_uldivmod        0x0000628f         Code  Gb  I64DivMod.o [5]
+__cmain                 0x00006c75         Code  Gb  cmain.o [5]
+__exit                  0x00007f51   0x14  Code  Gb  exit.o [6]
 __iar_Memset4_word      0x00007d71         Code  Gb  ABImemset.o [5]
-__iar_ceil              0x00005f71         Code  Gb  ceil.o [4]
-__iar_ceill             0x00005f71         Code  Gb  ceil.o [4]
-__iar_d2uiz             0x00005ff1         Code  Gb  DblToI32.o [4]
-__iar_data_init3        0x00006825   0x28  Code  Gb  data_init.o [5]
-__iar_floor             0x00006185         Code  Gb  floor.o [4]
-__iar_floorl            0x00006185         Code  Gb  floor.o [4]
-__iar_packbits_init3    0x000065db   0xb6  Code  Gb  packbits_init.o [5]
-__iar_program_start     0x000068af         Code  Gb  cstartup_M.o [5]
+__iar_ceil              0x00005f85         Code  Gb  ceil.o [4]
+__iar_ceill             0x00005f85         Code  Gb  ceil.o [4]
+__iar_d2uiz             0x00006005         Code  Gb  DblToI32.o [4]
+__iar_data_init3        0x00006c19   0x28  Code  Gb  data_init.o [5]
+__iar_floor             0x00006199         Code  Gb  floor.o [4]
+__iar_floorl            0x00006199         Code  Gb  floor.o [4]
+__iar_packbits_init3    0x00006a3b   0xb6  Code  Gb  packbits_init.o [5]
+__iar_program_start     0x00007fd1         Code  Gb  cstartup_M.o [5]
 __iar_ui2d              0x000002c1         Code  Gb  I32ToDbl.o [4]
-__iar_ui2f              0x00006021         Code  Gb  I32ToFlt.o [4]
+__iar_ui2f              0x00006035         Code  Gb  I32ToFlt.o [4]
 __iar_zero_init3        0x000032fb   0x2a  Code  Gb  zero_init3.o [5]
 __low_level_init        0x000002dd    0x4  Code  Gb  low_level_init.o [3]
 __vector_table          0x00000000         Data  Gb  iar_startup_lpc82x.o [1]
 __vector_table_0x1c     0x00000010         Data  Gb  iar_startup_lpc82x.o [1]
-_call_main              0x0000688d         Code  Gb  cmain.o [5]
-_exit                   0x000068a5         Code  Gb  cexit.o [5]
-_main                   0x00006897         Code  Gb  cmain.o [5]
+_call_main              0x00006c81         Code  Gb  cmain.o [5]
+_exit                   0x00006c99         Code  Gb  cexit.o [5]
+_main                   0x00006c8b         Code  Gb  cmain.o [5]
 aBlock                  0x100002a4   0x10  Data  Lc  LoRaMacCrypto.o [1]
 aLarmTimerTime          0x10000540    0x4  Data  Gb  board.o [1]
 abort                   0x00007f45    0xa  Code  Gb  abort.o [3]
-add_round_key           0x0000488d    0x8  Code  Lc  aes.o [1]
-aes_encrypt             0x00004d9b   0x52  Code  Gb  aes.o [1]
-aes_set_key             0x00004c99  0x102  Code  Gb  aes.o [1]
+add_round_key           0x000048a1    0x8  Code  Lc  aes.o [1]
+aes_encrypt             0x00004daf   0x52  Code  Gb  aes.o [1]
+aes_set_key             0x00004cad  0x102  Code  Gb  aes.o [1]
 bitNeedAck              0x100004b4    0x1  Data  Gb  main.o [1]
 bitNeedAckTimer         0x100004d0    0x4  Data  Gb  main.o [1]
 caculateDr              0x00002643   0x3a  Code  Gb  RegionCN470.o [1]
-ceil                    0x00005f71         Code  Gb  ceil.o [4]
-ceill                   0x00005f71         Code  Gb  ceil.o [4]
-config_tab              0x00007864  0x354  Data  Lc  irc_8xx.o [1]
+ceil                    0x00005f85         Code  Gb  ceil.o [4]
+ceill                   0x00005f85         Code  Gb  ceil.o [4]
+config_tab              0x000066c4  0x354  Data  Lc  irc_8xx.o [1]
 config_tab_idx          0x100016e6    0x2  Data  Lc  irc_8xx.o [1]
-copy_and_key            0x00004807   0x86  Code  Lc  aes.o [1]
-copy_block              0x0000472d   0x42  Code  Lc  aes.o [1]
-copy_block_nn           0x0000476f   0x16  Code  Lc  aes.o [1]
-cpystr                  0x00005a47   0x18  Code  Gb  hex.o [1]
+copy_and_key            0x0000481b   0x86  Code  Lc  aes.o [1]
+copy_block              0x00004741   0x42  Code  Lc  aes.o [1]
+copy_block_nn           0x00004783   0x16  Code  Lc  aes.o [1]
+cpystr                  0x00005a5b   0x18  Code  Gb  hex.o [1]
 eeprom_write            0x00002b03   0x7e  Code  Gb  eeprom-board.o [1]
 enableChannelDR         0x100004bc    0x8  Data  Gb  main.o [1]
 enableChannelsDRnum     0x100004b6    0x1  Data  Gb  main.o [1]
 evnames                 0x1000012c   0x40  Data  Lc  modem.o [1]
-exit                    0x0000689b    0x8  Code  Gb  exit.o [3]
-floor                   0x00006185         Code  Gb  floor.o [4]
-floorl                  0x00006185         Code  Gb  floor.o [4]
+exit                    0x00006c8f    0x8  Code  Gb  exit.o [3]
+floor                   0x00006199         Code  Gb  floor.o [4]
+floorl                  0x00006199         Code  Gb  floor.o [4]
 frame_init              0x00002d8d   0x14  Code  Gb  frame.o [1]
 frame_rx                0x00002da1   0xfc  Code  Gb  frame.o [1]
 getUARTClockID          0x00002f13   0x18  Code  Lc  uart_8xx.o [1]
-gethex                  0x0000594d   0x3e  Code  Gb  hex.o [1]
-gfm2_sbox               0x00004b98  0x100  Data  Lc  aes.o [1]
-gfm3_sbox               0x00004a98  0x100  Data  Lc  aes.o [1]
-hex2int                 0x000059e5   0x32  Code  Gb  hex.o [1]
-hexval                  0x00005a74  0x100  Data  Lc  hex.o [1]
+gethex                  0x00005961   0x3e  Code  Gb  hex.o [1]
+gfm2_sbox               0x00004bac  0x100  Data  Lc  aes.o [1]
+gfm3_sbox               0x00004aac  0x100  Data  Lc  aes.o [1]
+hex2int                 0x000059f9   0x32  Code  Gb  hex.o [1]
+hexval                  0x00005a88  0x100  Data  Lc  hex.o [1]
 iap_entry               0x00007da5    0x8  Code  Lc  iap.o [1]
-int2hex                 0x000059c1   0x24  Code  Gb  hex.o [1]
+int2hex                 0x000059d5   0x24  Code  Gb  hex.o [1]
 joincfg                 0x10001630   0x24  Data  Lc  modem.o [1]
 ledBits                 0x000032f8    0x1  Data  Lc  lpc824board.o [1]
 ledstatus               0x10001721    0x1  Data  Lc  lpc824board.o [1]
@@ -1022,39 +1022,39 @@ memcmp                  0x00000281   0x28  Code  Gb  memcmp.o [5]
 memcpy1                 0x00002bd7   0x16  Code  Gb  utilities.o [1]
 memcpyr                 0x00002bed   0x1a  Code  Gb  utilities.o [1]
 memset1                 0x00002c07   0x12  Code  Gb  utilities.o [1]
-mix_sub_columns         0x000048f9  0x19a  Code  Lc  aes.o [1]
+mix_sub_columns         0x0000490d  0x19a  Code  Lc  aes.o [1]
 modemSendFrame          0x000033f7   0x86  Code  Gb  main.o [1]
-modem_init              0x00003eb1   0x30  Code  Gb  modem.o [1]
-modem_rxdone            0x00003f21  0x598  Code  Gb  modem.o [1]
+modem_init              0x00003ed5   0x30  Code  Gb  modem.o [1]
+modem_rxdone            0x00003f35  0x598  Code  Gb  modem.o [1]
 modem_wkt_init          0x00003a89   0x30  Code  Gb  modem.o [1]
 modem_wwdt_init         0x00003abb   0x60  Code  Gb  modem.o [1]
 next                    0x10000550    0x4  Data  Lc  utilities.o [1]
 onEvent                 0x00003c11  0x164  Code  Gb  modem.o [1]
 os_crc16                0x00003d79   0x38  Code  Gb  modem.o [1]
 persist                 0x10000c68   0x68  Data  Gb  modem.o [1]
-persist_init            0x00003db9   0xde  Code  Lc  modem.o [1]
-pll_config              0x00007799   0x4a  Code  Lc  irc_8xx.o [1]
-puthex                  0x0000598d   0x34  Code  Gb  hex.o [1]
+persist_init            0x00003db9  0x104  Code  Lc  modem.o [1]
+pll_config              0x000065f9   0x4a  Code  Lc  irc_8xx.o [1]
+puthex                  0x000059a1   0x34  Code  Gb  hex.o [1]
 rand1                   0x00002b91   0x1a  Code  Gb  utilities.o [1]
 randr                   0x00002bc1   0x16  Code  Gb  utilities.o [1]
-reverse                 0x00005a17   0x22  Code  Gb  hex.o [1]
+reverse                 0x00005a2b   0x22  Code  Gb  hex.o [1]
 rxbuff                  0x10000f34  0x100  Data  Gb  uart-board.o [1]
 rxframe                 0x100016fc   0x10  Data  Gb  frame.o [1]
 rxring                  0x10000f20   0x14  Data  Gb  uart-board.o [1]
 sBlock                  0x100002b4   0x10  Data  Lc  LoRaMacCrypto.o [1]
 sTartAlarmTimerTime     0x10000544    0x4  Data  Gb  board.o [1]
-sbox                    0x00004dec  0x100  Data  Lc  aes.o [1]
+sbox                    0x00004e00  0x100  Data  Lc  aes.o [1]
 sesscfg                 0x10001654   0x30  Data  Lc  modem.o [1]
-shift_sub_rows          0x00004895   0x64  Code  Lc  aes.o [1]
+shift_sub_rows          0x000048a9   0x64  Code  Lc  aes.o [1]
 srand1                  0x00002bab    0x6  Code  Gb  utilities.o [1]
 src_iap_array_data      0x10001540   0x80  Data  Gb  eeprom-board.o [1]
 strlen                  0x00000271   0x10  Code  Gb  strlen.o [5]
 systick                 0x1000053c    0x4  Data  Gb  board.o [1]
-tolower                 0x00005a39    0xe  Code  Gb  hex.o [1]
+tolower                 0x00005a4d    0xe  Code  Gb  hex.o [1]
 txbuff                  0x10001034  0x100  Data  Gb  uart-board.o [1]
 txring                  0x10000f0c   0x14  Data  Gb  uart-board.o [1]
-wdtOSCRate              0x000056b4   0x40  Data  Lc  clock_8xx.o [1]
-xor_block               0x00004785   0x82  Code  Lc  aes.o [1]
+wdtOSCRate              0x000056c8   0x40  Data  Lc  clock_8xx.o [1]
+xor_block               0x00004799   0x82  Code  Lc  aes.o [1]
 
 
 [1] = F:\LoRaProduct\source code\LoRaMac-node\IAR\Debug\Obj
@@ -1064,8 +1064,8 @@ xor_block               0x00004785   0x82  Code  Lc  aes.o [1]
 [5] = rt6M_tl.a
 [6] = shb_l.a
 
-  32 028 bytes of readonly  code memory
-     540 bytes of readonly  data memory
+  32 046 bytes of readonly  code memory
+     542 bytes of readonly  data memory
    7 972 bytes of readwrite data memory
 
 Errors: none
