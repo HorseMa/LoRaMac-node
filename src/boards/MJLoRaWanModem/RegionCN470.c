@@ -380,12 +380,13 @@ void caculateDr(int8_t snr)
     {
         loop --;
     }
-    trials = enableChannelDR[loop];
+    persist.sesspar.JoinRequestTrials = enableChannelDR[loop];
+    /*trials = enableChannelDR[loop];
     if(trials != persist.sesspar.JoinRequestTrials)
     {
         persist.sesspar.JoinRequestTrials = trials;
         eeprom_write();
-    }
+    }*/
 }
 
 bool RegionCN470ChanMaskSet( ChanMaskSetParams_t* chanMaskSet )
@@ -419,6 +420,7 @@ bool RegionCN470ChanMaskSet( ChanMaskSetParams_t* chanMaskSet )
                     enableChannelsDRnum ++;
                 }
             }
+            persist.sesspar.JoinRequestTrials = enableChannelDR[0];
             break;
         }
         default:

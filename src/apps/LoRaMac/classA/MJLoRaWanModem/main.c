@@ -672,10 +672,6 @@ int main( void )
                 mibReq.Param.ChannelsDefaultTxPower = TX_POWER_7;
                 LoRaMacMibSetRequestConfirm( &mibReq );
                 
-                mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
-                mibReq.Param.ChannelsDefaultDatarate = enableChannelDR[0];
-                LoRaMacMibSetRequestConfirm( &mibReq );
-                
                 mibReq.Type = MIB_DEVICE_CLASS;
                 mibReq.Param.Class = persist.nodetype;;
                 LoRaMacMibSetRequestConfirm( &mibReq );
@@ -690,6 +686,10 @@ int main( void )
                 }
                 LoRaMacMibSetRequestConfirm( &mibReq );
                 mibReq.Type = MIB_CHANNELS_MASK;
+                LoRaMacMibSetRequestConfirm( &mibReq );
+                
+                mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
+                mibReq.Param.ChannelsDefaultDatarate = enableChannelDR[0];
                 LoRaMacMibSetRequestConfirm( &mibReq );
                 
 #if defined( REGION_EU868 )
