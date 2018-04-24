@@ -447,9 +447,9 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
             DEBUG_OUTPUT("Reset\r\n");
             //SX1276Reset();
             //DelayMs(7);
-            persist.flags &= ~FLAGS_SESSPAR;
-            persist.flags |= FLAGS_JOINPAR;
-            eeprom_write();
+            //persist.flags &= ~FLAGS_SESSPAR;
+            //persist.flags |= FLAGS_JOINPAR;
+            //eeprom_write();
             BoardResetMcu();
         }
         return;
@@ -561,8 +561,8 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                 {
                     DeviceState = DEVICE_STATE_SEND;
                 }
-                onEvent(EV_JOINED);
-                Board_LED_Set(0,0);
+                //onEvent(EV_JOINED);
+                //Board_LED_Set(0,0);
             }
             else
             {
