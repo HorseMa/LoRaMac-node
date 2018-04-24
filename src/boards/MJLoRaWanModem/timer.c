@@ -432,23 +432,7 @@ void TimerLowPowerHandler( void )
         Chip_WWDT_Feed(LPC_WWDT);
         frame_rx(byte);
     }
-    extern bool bitNeedAck;
-    extern TimerTime_t bitNeedAckTimer;
-    if(bitNeedAck)
-    {
-        if(TimerGetElapsedTime(bitNeedAckTimer) > 200)
-        {
-            uint8_t sendlen = 0;
-            uint8_t senddata[1];
-            senddata[0] = Board_LED_Get(0);
-            modemSendFrame(1,senddata,sendlen,false);
-            return;
-        }
-        else
-        {
-            return;
-        }
-    }
+
     if(persist.nodetype == CLASS_C)
     {
         return;

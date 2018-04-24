@@ -126,8 +126,6 @@ static uint8_t AppData[LORAWAN_APP_DATA_MAX_SIZE];
  */
 static uint8_t IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
 static uint8_t IsLastTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
-bool bitNeedAck = false;
-TimerTime_t bitNeedAckTimer = 0;
 /*!
  * Defines the application data transmission duty cycle
  */
@@ -316,10 +314,6 @@ bool modemSendFrame(uint8_t port,uint8_t *data,uint8_t len,bool confirm)
         AppDataSize = len;
         memcpy(AppData,data,len);
         NextTx = SendFrame( );
-        if(!NextTx)
-        {
-            bitNeedAck = false;
-        }
     }
     if((persist.nodetype == CLASS_C) && (persist.sesspar.alarm))
     {
@@ -463,8 +457,6 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         }
         case MCPS_CONFIRMED:
         {
-            bitNeedAck = true;
-            bitNeedAckTimer  = TimerGetCurrentTime();
             break;
         }
         case MCPS_PROPRIETARY:
@@ -788,10 +780,6 @@ int main( void )
                     PrepareTxFrame( AppPort );
 
                     NextTx = SendFrame( );
-                    if(!NextTx)
-                    {
-                        bitNeedAck = false;
-                    }
                 }
                 /*if( ComplianceTest.Running == true )
                 {
