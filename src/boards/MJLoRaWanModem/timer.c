@@ -421,18 +421,20 @@ static void TimerSetTimeout( TimerEvent_t *obj )
 #endif
 }
 extern RINGBUFF_T txring, rxring;
+TimerTime_t uartflashtimer;
+
 void TimerLowPowerHandler( void )
 {
+    static uint8_t alarmsendflag = true;
     uint8_t byte;
-    TimerTime_t uartflashtimer;
     TimerTime_t macflashtimer;
     Chip_WWDT_Feed(LPC_WWDT);
     while(Chip_UART_ReadRB(LPC_USART0, &rxring, &byte, 1) > 0)
     {
         Chip_WWDT_Feed(LPC_WWDT);
+        uartflashtimer = TimerGetCurrentTime();
         frame_rx(byte);
     }
-
     if(persist.nodetype == CLASS_C)
     {
         return;
@@ -441,73 +443,69 @@ void TimerLowPowerHandler( void )
     {
         uartflashtimer = TimerGetCurrentTime();
     }
+
     extern TimerEvent_t TxDelayedTimer;
     extern TimerEvent_t RxWindowTimer1;
     extern TimerEvent_t RxWindowTimer2;
+    extern TimerEvent_t AckTimeoutTimer;
 
-    if(( RxWindowTimer1.IsRunning == true ) && ( RxWindowTimer2.IsRunning == true ) && ( TxDelayedTimer.IsRunning == true ) && ( Radio.GetStatus() == RF_RX_RUNNING ))
+
+    extern uint32_t LoRaMacState;
+    if( TimerExists(&RxWindowTimer1) || TimerExists(&RxWindowTimer2) || TimerExists(&TxDelayedTimer) || TimerExists(&AckTimeoutTimer) || ( Radio.GetStatus() == RF_RX_RUNNING ) || ( Radio.GetStatus() == RF_TX_RUNNING ) || (LoRaMacState != 0))
     {
         return;
     }
-    extern uint32_t LoRaMacState;
+    if( persist.flags & FLAGS_JOINPAR )
+    {
+        return;
+    }
+    /*extern uint32_t LoRaMacState;
     if(LoRaMacState != 0)
     {
         macflashtimer = TimerGetCurrentTime();
-    }
-    
-    if((TimerGetElapsedTime(uartflashtimer) > 10) && (TimerGetElapsedTime(macflashtimer) > 10))
+    }*/
+    if((alarmsendflag == true) && ( persist.flags & FLAGS_SESSPAR ))
     {
-        extern uint32_t UpLinkCounter;
-        if((UpLinkCounter == 0) && ( persist.flags & FLAGS_SESSPAR ))
+        uint8_t sendlen = 1;
+        uint8_t senddata[1];
+        senddata[0] = Board_LED_Get(0);
+        if(modemSendFrame(1,senddata,sendlen,true))
         {
-            uint8_t sendlen = 1;
-            uint8_t senddata[1];
-            senddata[0] = Board_LED_Get(0);
-            modemSendFrame(1,senddata,sendlen,true);
-            return;
+            alarmsendflag = false;
         }
-        //NVIC_DisableIRQ(PININT0_IRQn);
-        //NVIC_DisableIRQ(PININT1_IRQn);
-        //Radio.Sleep( );
-        //if( persist.flags & FLAGS_JOINPAR )
-        {
-        //    Chip_PMU_ClearPowerDownControl(LPC_PMU, PMU_DPDCTRL_LPOSCEN | PMU_DPDCTRL_LPOSCDPDEN);
-        }
-        //else
-        
-        DelayMs(2);
+        return;
+    }
+    if(TimerGetElapsedTime(uartflashtimer) > 10)// && (TimerGetElapsedTime(macflashtimer) > 10))
+    {
+        //BoardDisableIrq( );
+        Radio.Sleep( );
+        //DelayMs(10);
+        /*Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_SWM);
+        //Chip_SWM_EnableFixedPin(SWM_FIXED_ADC11);
+        Chip_SWM_DisableFixedPin(SWM_FIXED_ADC11);
+        Chip_SWM_MovablePinAssign(SWM_U0_RXD_I, 24);
+        Chip_Clock_DisablePeriphClock(SYSCTL_CLOCK_SWM);
+        */
         Chip_PMU_SetPowerDownControl(LPC_PMU, PMU_DPDCTRL_WAKEUPPHYS);
-        if( persist.flags & FLAGS_JOINPAR )
+        if(persist.sesspar.alarm)
         {
             Chip_PMU_SetPowerDownControl(LPC_PMU, PMU_DPDCTRL_LPOSCEN | PMU_DPDCTRL_LPOSCDPDEN);
-            WakeupTest(WKT_CLKSRC_10KHZ,6,PMU_MCU_DEEP_PWRDOWN);
         }
-        else
-        {
-            if(persist.sesspar.alarm)
-            {
-                Chip_PMU_SetPowerDownControl(LPC_PMU, PMU_DPDCTRL_LPOSCEN | PMU_DPDCTRL_LPOSCDPDEN);
-            }
-            //if(persist.sesspar.alarm)
-            WakeupTest(WKT_CLKSRC_10KHZ,persist.sesspar.alarm,PMU_MCU_DEEP_PWRDOWN);
-        }
+        WakeupTest(WKT_CLKSRC_10KHZ,persist.sesspar.alarm,PMU_MCU_DEEP_PWRDOWN);
+        //WakeupTest(WKT_CLKSRC_10KHZ,persist.sesspar.alarm,PMU_MCU_POWER_DOWN);
+        Chip_PMU_ClearPowerDownControl(LPC_PMU, PMU_DPDCTRL_WAKEUPPHYS);
+        Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_SWM);
+        Chip_SWM_DisableFixedPin(SWM_FIXED_ADC11);
+        Chip_SWM_MovablePinAssign(SWM_U0_RXD_I, 4);
+        Chip_Clock_DisablePeriphClock(SYSCTL_CLOCK_SWM);
+
+        //modem_wwdt_init();
+        //while(1);
+        alarmsendflag = true;
+
+        //BoardEnableIrq( );
         //WakeupTest(WKT_CLKSRC_10KHZ,persist.sesspar.alarm,PMU_MCU_SLEEP);
     }
-    /*if( ( TimerListHead != NULL ) && ( TimerListHead->IsRunning == true ) )
-    {
-        if( HasLoopedThroughMain < 5 )
-        {
-            HasLoopedThroughMain++;
-        }
-        else
-        {
-            HasLoopedThroughMain = 0;
-            //if( GetBoardPowerSource( ) == BATTERY_POWER )
-            {
-                //RtcEnterLowPowerStopMode( );
-            }
-        }
-    }*/
 }
 
 void TimerProcess( void )

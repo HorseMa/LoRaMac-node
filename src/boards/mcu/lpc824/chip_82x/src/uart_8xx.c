@@ -183,7 +183,8 @@ void Chip_UART_TXIntHandlerRB(LPC_USART_T *pUART, RINGBUFF_T *pRB)
 		Chip_UART_SendByte(pUART, ch);
 	}
 }
-
+#include "timer.h"
+extern TimerTime_t uartflashtimer;
 /* Populate a transmit ring buffer and start UART transmit */
 uint32_t Chip_UART_SendRB(LPC_USART_T *pUART, RINGBUFF_T *pRB, const void *data, int count)
 {
@@ -202,7 +203,8 @@ uint32_t Chip_UART_SendRB(LPC_USART_T *pUART, RINGBUFF_T *pRB, const void *data,
 
 	/* Enable UART transmit interrupt */
 	Chip_UART_IntEnable(pUART, UART_INTEN_TXRDY);
-
+        
+        uartflashtimer = TimerGetCurrentTime();
 	return ret;
 }
 

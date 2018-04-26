@@ -162,7 +162,7 @@ static uint8_t LoRaMacRxPayload[LORAMAC_PHY_MAXPAYLOAD];
  * LoRaMAC frame counter. Each time a packet is sent the counter is incremented.
  * Only the 16 LSB bits are sent
  */
-uint32_t UpLinkCounter = 0;
+static uint32_t UpLinkCounter = 0;
 
 /*!
  * LoRaMAC frame counter. Each time a packet is received the counter is incremented.
@@ -356,7 +356,7 @@ static RxConfigParams_t RxWindow2Config;
 /*!
  * Acknowledge timeout timer. Used for packet retransmissions.
  */
-static TimerEvent_t AckTimeoutTimer;
+TimerEvent_t AckTimeoutTimer;
 
 /*!
  * Number of trials to get a frame acknowledged

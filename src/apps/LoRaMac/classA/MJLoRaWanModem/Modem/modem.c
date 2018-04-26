@@ -144,16 +144,17 @@ void funSendAck(void)
  * @return	Nothing
  */
 extern void enableUart(void);
-
+#if 0
 void WKT_IRQHandler(void)
 {
 	/* Clear WKT interrupt request */
 	Chip_WKT_ClearIntStatus(LPC_WKT);
-
+        modem_wwdt_init();
         //funWktAlarm();
 	/* LED will toggle state on wakeup event */
 	//Board_LED_Toggle(0);
 }
+#endif
 #if 0
 void PININT7_IRQHandler( void )
 {
@@ -207,10 +208,11 @@ void modem_wkt_init(void)
     enable 10KHz oscillator for all power down modes including deep
     power-down */
     Chip_PMU_SetPowerDownControl(LPC_PMU,
+                                 PMU_DPDCTRL_WAKEUPPHYS | 
                                  PMU_DPDCTRL_LPOSCDPDEN);
 
     /* Enable WKT interrupt */
-    NVIC_EnableIRQ(WKT_IRQn);
+    //NVIC_EnableIRQ(WKT_IRQn);
 
     /*
      *	Note that deep power down causes a reset when it wakes up.
@@ -229,9 +231,9 @@ void modem_wkt_init(void)
     }*/
 }
 
-void WDT_IRQHandler(void)
+/*void WDT_IRQHandler(void)
 {
-}
+}*/
 
 void modem_wwdt_init(void)
 {
@@ -263,8 +265,8 @@ void modem_wwdt_init(void)
     Chip_WWDT_ClearStatusFlag(LPC_WWDT, WWDT_WDMOD_WDTOF | WWDT_WDMOD_WDINT);
 
     /* Clear and enable watchdog interrupt */
-    NVIC_ClearPendingIRQ(WDT_IRQn);
-    NVIC_EnableIRQ(WDT_IRQn);
+    //NVIC_ClearPendingIRQ(WDT_IRQn);
+    //NVIC_EnableIRQ(WDT_IRQn);
 
     /* Start watchdog */
     Chip_WWDT_Start(LPC_WWDT);
@@ -672,7 +674,7 @@ static void persist_init (uint8_t factory) {
         persist.eventmask = ~0;
         persist.startchannelid = 0;
         persist.channeltoenable = 3;
-        persist.nodetype = CLASS_C;
+        persist.nodetype = CLASS_A;
         eeprom_write();
     }
     else
