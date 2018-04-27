@@ -130,8 +130,8 @@ typedef struct {
     uint32_t seqnoDn;
     uint32_t seqnoUp;
     uint32_t eventmask;
-    uint8_t startchannelid;
-    uint8_t channeltoenable;
+    uint16_t startchannelid[6];
+    //uint8_t channeltoenable;
     uint8_t nodetype;
 } persist_t;
 

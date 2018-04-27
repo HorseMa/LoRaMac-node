@@ -672,9 +672,9 @@ static void persist_init (uint8_t factory) {
         persist.seqnoDn = 0;
         persist.seqnoUp = 0;
         persist.eventmask = ~0;
-        persist.startchannelid = 0;
-        persist.channeltoenable = 3;
-        persist.nodetype = CLASS_A;
+        memset(persist.startchannelid,0,sizeof(persist.startchannelid));
+        persist.startchannelid[0] = 0x03;
+        persist.nodetype = CLASS_C;
         eeprom_write();
     }
     else
@@ -819,34 +819,25 @@ void modem_rxdone () {
     else if(cmd == 'g' && len >= 2) { // Global parameters
     if(MODEM.cmdbuf[1] == '?' && len == 2) { // ATG? query (deveui,appeui)
         rspbuf += cpystr(rspbuf, "OK,");
-        rspbuf += puthex(rspbuf, &persist.startchannelid, 1);
-        *rspbuf++ = ',';
-        rspbuf += puthex(rspbuf, &persist.channeltoenable, 1);
+        rspbuf += puthex(rspbuf, (uint8_t*)&persist.startchannelid, 12);
         *rspbuf++ = ',';
         rspbuf += puthex(rspbuf, &persist.nodetype, 1);
         *rspbuf++ = ',';
         rspbuf += puthex(rspbuf, &persist.flags, 1);
         ok = 1;
-    } else if(MODEM.cmdbuf[1] == '=' && len == 2+2+1+2+1+2) { // ATG= set (deveui,appeui,devkey)
-        uint8_t startchannelid;
-        uint8_t channeltoenable;
+    } else if(MODEM.cmdbuf[1] == '=' && len == 2+2 * 12+1+2) { // ATG= set (deveui,appeui,devkey)
+        uint8_t startchannelid[2*12];
         uint8_t nodetype;
         
-        if( gethex(&startchannelid, MODEM.cmdbuf+2,           2) == 1 &&
-        MODEM.cmdbuf[2+2] == ',' &&
-        gethex(&channeltoenable, MODEM.cmdbuf+2+2+1,      2) == 1 &&
-        MODEM.cmdbuf[2+2+1+2] == ',' &&
-        gethex(&nodetype, MODEM.cmdbuf+2+2+1+2+1, 2) == 1 ) {
-            if((startchannelid < 96) && (channeltoenable > 0)  && (nodetype < 3))
-            {
-                persist.startchannelid = startchannelid;
-                persist.channeltoenable = channeltoenable;
-                persist.nodetype = nodetype;
-                //DeviceState = DEVICE_STATE_INIT;
-                eeprom_write();
-                ok = 1;
-                rst = 1;
-            }
+        if( gethex(startchannelid, MODEM.cmdbuf+2,           2 * 12) == 12 &&
+            MODEM.cmdbuf[2+2*12] == ',' &&
+            gethex(&nodetype, MODEM.cmdbuf+2+2*12+1, 2) == 1 ) {
+            memcpy(persist.startchannelid,startchannelid,12);
+            persist.nodetype = nodetype;
+            //DeviceState = DEVICE_STATE_INIT;
+            eeprom_write();
+            ok = 1;
+            rst = 1;
         }
     }
     } else if(cmd == 'j' && len == 1) { // ATJ join network

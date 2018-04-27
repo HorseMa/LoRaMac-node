@@ -672,10 +672,7 @@ int main( void )
                 mibReq.Param.ChannelsMask = ChannelsDefaultMask;
                 mibReq.Type = MIB_CHANNELS_DEFAULT_MASK;
                 memset(ChannelsDefaultMask,0,sizeof(ChannelsDefaultMask));
-                for(int loop = 0;loop < persist.channeltoenable;loop++)
-                {
-                    ChannelsDefaultMask[(persist.startchannelid + loop) / 16] |= (1 << ((persist.startchannelid + loop) % 16));
-                }
+                memcpy(ChannelsDefaultMask,persist.startchannelid,sizeof(ChannelsDefaultMask));
                 LoRaMacMibSetRequestConfirm( &mibReq );
                 mibReq.Type = MIB_CHANNELS_MASK;
                 LoRaMacMibSetRequestConfirm( &mibReq );
