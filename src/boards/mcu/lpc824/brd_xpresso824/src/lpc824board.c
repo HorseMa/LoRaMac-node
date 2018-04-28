@@ -303,6 +303,8 @@ void Board_Init(void)
 	/* Initialize GPIO */
 	Chip_GPIO_Init(LPC_GPIO_PORT);
 	Board_GPIO_Init();
+        Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, 0, 12);
+        Chip_GPIO_SetPinState(LPC_GPIO_PORT, 0, 12, false);
 	/* Initialize the LEDs */
 	Board_LED_Init();
         /* Sets up DEBUG UART */

@@ -674,7 +674,7 @@ static void persist_init (uint8_t factory) {
         persist.eventmask = ~0;
         memset(persist.startchannelid,0,sizeof(persist.startchannelid));
         persist.startchannelid[0] = 0x03;
-        persist.nodetype = CLASS_C;
+        persist.nodetype = CLASS_A;
         eeprom_write();
     }
     else
