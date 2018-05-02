@@ -2210,7 +2210,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
     }
 
     LoRaMacTxPayloadLen = fBufferSize;
-    macHdr->Bits.RFU = CLASS_C;
+    macHdr->Bits.RFU = persist.nodetype;
     LoRaMacBuffer[pktHeaderLen++] = macHdr->Value;
 
     switch( macHdr->Bits.MType )
@@ -2388,6 +2388,8 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
     // Send now
     Radio.Send( LoRaMacBuffer, LoRaMacBufferPktLen );
 
+    extern bool bitNeedAck;
+    bitNeedAck = false;
     LoRaMacState |= LORAMAC_TX_RUNNING;
 
     LoRaMacDevNonceCopy = LoRaMacDevNonce;

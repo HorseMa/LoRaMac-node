@@ -664,7 +664,7 @@ static void persist_init (uint8_t factory) {
         memcpy(joincfg.param.appeui,appEui,8);
         memcpy(joincfg.param.devkey,appKey,16);
         joincfg.param.isPublic = false;
-        sesscfg.param.alarm = 1;//seconds
+        sesscfg.param.alarm = 60;//seconds
     
         memcpy(&persist.joinpar,&joincfg,sizeof(joinparam_t));
 	persist.flags = FLAGS_JOINPAR;
@@ -673,7 +673,7 @@ static void persist_init (uint8_t factory) {
         persist.seqnoUp = 0;
         persist.eventmask = ~0;
         memset(persist.startchannelid,0,sizeof(persist.startchannelid));
-        persist.startchannelid[0] = 0x03;
+        persist.startchannelid[0] = 0x07;
         persist.nodetype = CLASS_A;
         eeprom_write();
     }
