@@ -106,7 +106,7 @@ static uint8_t LoRaMacAppSKey[] =
  * Device nonce is a random value extracted by issuing a sequence of RSSI
  * measurements
  */
-static uint16_t LoRaMacDevNonce,LoRaMacDevNonceCopy;
+static uint16_t LoRaMacDevNonce;//,LoRaMacDevNonceCopy;
 
 /*!
  * Network ID ( 3 bytes )
@@ -799,7 +799,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
             LoRaMacRxPayload[0] = macHdr.Value;
 
             LoRaMacJoinComputeMic( LoRaMacRxPayload, size - LORAMAC_MFR_LEN, LoRaMacAppKey, &mic );
-            mic += LoRaMacDevNonceCopy;
+            //mic += LoRaMacDevNonceCopy;
 
             micRx |= ( uint32_t )LoRaMacRxPayload[size - LORAMAC_MFR_LEN];
             micRx |= ( ( uint32_t )LoRaMacRxPayload[size - LORAMAC_MFR_LEN + 1] << 8 );
@@ -808,7 +808,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
 
             if( micRx == mic )
             {
-                LoRaMacJoinComputeSKeys( LoRaMacAppKey, LoRaMacRxPayload + 1, LoRaMacDevNonceCopy, LoRaMacNwkSKey, LoRaMacAppSKey );
+                LoRaMacJoinComputeSKeys( LoRaMacAppKey, LoRaMacRxPayload + 1, LoRaMacDevNonce, LoRaMacNwkSKey, LoRaMacAppSKey );
 
                 LoRaMacNetID = ( uint32_t )LoRaMacRxPayload[4];
                 LoRaMacNetID |= ( ( uint32_t )LoRaMacRxPayload[5] << 8 );
@@ -2392,7 +2392,7 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
     bitNeedAck = false;
     LoRaMacState |= LORAMAC_TX_RUNNING;
 
-    LoRaMacDevNonceCopy = LoRaMacDevNonce;
+    //LoRaMacDevNonceCopy = LoRaMacDevNonce;
     return LORAMAC_STATUS_OK;
 }
 
