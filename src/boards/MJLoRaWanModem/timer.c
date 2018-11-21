@@ -422,10 +422,9 @@ static void TimerSetTimeout( TimerEvent_t *obj )
 }
 extern RINGBUFF_T txring, rxring;
 TimerTime_t uartflashtimer;
-
+uint8_t alarmsendflag = true;
 void TimerLowPowerHandler( void )
 {
-    static uint8_t alarmsendflag = true;
     uint8_t byte;
     TimerTime_t macflashtimer;
     Chip_WWDT_Feed(LPC_WWDT);
@@ -439,12 +438,14 @@ void TimerLowPowerHandler( void )
     extern TimerTime_t bitNeedAckTimer;
     if(bitNeedAck)
     {
+        alarmsendflag = false;
         if(TimerGetElapsedTime(bitNeedAckTimer) > 500)
         {
             uint8_t sendlen = 1;
             uint8_t senddata[1];
             senddata[0] = Board_LED_Get(0);
             modemSendFrame(1,senddata,sendlen,false);
+            //Chip_UART_SendRB(LPC_USART0, &txring, "ack\r\n", 5);
         }
         return;
     }
@@ -483,6 +484,7 @@ void TimerLowPowerHandler( void )
         uint8_t sendlen = 1;
         uint8_t senddata[1];
         senddata[0] = Board_LED_Get(0);
+        //Chip_UART_SendRB(LPC_USART0, &txring, "alarm\r\n", 7);
         if(modemSendFrame(1,senddata,sendlen,true))
         {
             alarmsendflag = false;

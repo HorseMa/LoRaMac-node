@@ -663,7 +663,7 @@ static void persist_init (uint8_t factory) {
         uint8_t appKey[] = LORAWAN_APPLICATION_KEY;
         memcpy(joincfg.param.appeui,appEui,8);
         memcpy(joincfg.param.devkey,appKey,16);
-        joincfg.param.isPublic = false;
+        joincfg.param.isPublic = true;
         sesscfg.param.alarm = 60;//seconds
     
         memcpy(&persist.joinpar,&joincfg,sizeof(joinparam_t));
@@ -680,10 +680,10 @@ static void persist_init (uint8_t factory) {
     else
     {
         memcpy(&persist,PERSIST,sizeof(persist_t));
-        if(memcmp(persist.joinpar.deveui, unique_id_mac ,8))
+        /*if(memcmp(persist.joinpar.deveui, unique_id_mac ,8))
         {
             while(1);
-        }
+        }*/
     }
 }
 // called by initial job
@@ -693,6 +693,7 @@ void modem_init () {
     frame_init(&rxframe, MODEM.cmdbuf, sizeof(MODEM.cmdbuf));
     TimerInit( &Led1Timer_OffLine, OnLed1TimerEventNetOffline );
 }
+extern uint8_t alarmsendflag;
 
 // called by frame job
 // process command and prepare response in MODEM.cmdbuf[]
@@ -870,6 +871,8 @@ void modem_rxdone () {
                     //IsTxConfirmed = LMIC.pendTxConf;
                     //PrepareTxFrame( LMIC.pendTxPort ,LMIC.pendTxData ,LMIC.pendTxLen);
                     ok = modemSendFrame(LMIC.pendTxPort,LMIC.pendTxData,LMIC.pendTxLen,LMIC.pendTxConf);
+                    alarmsendflag = false;
+                    //Chip_UART_SendRB(LPC_USART0, &txring, "atsend\r\n", 8);
                 }
             }
         }

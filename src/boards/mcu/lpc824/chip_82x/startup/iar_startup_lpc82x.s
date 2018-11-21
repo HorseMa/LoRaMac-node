@@ -243,6 +243,6 @@ Default_Handler:
 
         DATA
 
-        DCD	0x87654321
+        DCD	0xFFFFFFFF
 
         END
