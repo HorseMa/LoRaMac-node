@@ -663,7 +663,7 @@ static void persist_init (uint8_t factory) {
         uint8_t appKey[] = LORAWAN_APPLICATION_KEY;
         memcpy(joincfg.param.appeui,appEui,8);
         memcpy(joincfg.param.devkey,appKey,16);
-        joincfg.param.isPublic = true;
+        joincfg.param.isPublic = false;
         sesscfg.param.alarm = 60;//seconds
     
         memcpy(&persist.joinpar,&joincfg,sizeof(joinparam_t));
