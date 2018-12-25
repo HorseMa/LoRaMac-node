@@ -41,3 +41,4 @@ launch.json
 *.bat
 *.cproject
 *.project
+!*.bin

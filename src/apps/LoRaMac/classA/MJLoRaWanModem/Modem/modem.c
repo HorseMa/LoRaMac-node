@@ -664,7 +664,7 @@ static void persist_init (uint8_t factory) {
         memcpy(joincfg.param.appeui,appEui,8);
         memcpy(joincfg.param.devkey,appKey,16);
         joincfg.param.isPublic = false;
-        sesscfg.param.alarm = 60;//seconds
+        sesscfg.param.alarm = 60 * 60 * 24;//seconds
     
         memcpy(&persist.joinpar,&joincfg,sizeof(joinparam_t));
 	persist.flags = FLAGS_JOINPAR;
